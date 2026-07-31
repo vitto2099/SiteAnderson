@@ -1,0 +1,279 @@
+/* ==========================================================================
+   Anderson Kunicki Corretor Imobiliário - Modern React Design System
+   ========================================================================== */
+
+:root {
+  /* Core Luxury Color Tokens */
+  --primary-dark: #07172C;
+  --primary-navy: #0B2545;
+  --primary-blue: #134074;
+  --accent-red: #C81D25;
+  --accent-red-hover: #A3141B;
+  --accent-red-subtle: rgba(200, 29, 37, 0.08);
+  --gold-primary: #D4AF37;
+  --gold-subtle: rgba(212, 175, 55, 0.15);
+  
+  --bg-main: #F4F6F9;
+  --bg-card: #FFFFFF;
+  --bg-glass: rgba(255, 255, 255, 0.92);
+  --bg-dark-glass: rgba(7, 23, 44, 0.85);
+
+  --text-dark: #0F172A;
+  --text-body: #334155;
+  --text-muted: #64748B;
+  --text-light: #94A3B8;
+  --text-white: #FFFFFF;
+
+  --border-subtle: #E2E8F0;
+  --border-active: #134074;
+
+  --shadow-sm: 0 2px 4px rgba(7, 23, 44, 0.04);
+  --shadow-md: 0 8px 24px rgba(7, 23, 44, 0.08);
+  --shadow-lg: 0 16px 40px rgba(7, 23, 44, 0.12);
+  --shadow-glow: 0 0 25px rgba(200, 29, 37, 0.2);
+
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-dark);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  color: var(--primary-dark);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+input, select, textarea {
+  font-family: inherit;
+}
+
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #E2E8F0;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary-blue);
+  border-radius: 4px;
+}
+
+/* Custom Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.4rem;
+  font-size: 0.925rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  white-space: nowrap;
+}
+
+.btn-red {
+  background-color: var(--accent-red);
+  color: var(--text-white);
+  box-shadow: 0 4px 14px rgba(200, 29, 37, 0.3);
+}
+
+.btn-red:hover {
+  background-color: var(--accent-red-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glow);
+}
+
+.btn-navy {
+  background-color: var(--primary-navy);
+  color: var(--text-white);
+}
+
+.btn-navy:hover {
+  background-color: var(--primary-blue);
+  transform: translateY(-2px);
+}
+
+.btn-outline {
+  border: 1.5px solid var(--border-subtle);
+  color: var(--primary-navy);
+  background: var(--bg-card);
+}
+
+.btn-outline:hover {
+  border-color: var(--primary-navy);
+  background: #EEF2F6;
+}
+
+.btn-whatsapp {
+  background-color: #25D366;
+  color: var(--text-white);
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+  background-color: #20BA5A;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+.btn-sm {
+  padding: 0.45rem 0.9rem;
+  font-size: 0.85rem;
+  border-radius: var(--radius-sm);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.badge-venda {
+  background: var(--accent-red);
+  color: var(--text-white);
+}
+
+.badge-aluguel {
+  background: #2563EB;
+  color: var(--text-white);
+}
+
+.badge-featured {
+  background: var(--gold-primary);
+  color: var(--primary-dark);
+}
+
+.badge-sold {
+  background: #64748B;
+  color: var(--text-white);
+}
+
+/* Modal Overlay & Animations */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(7, 23, 44, 0.75);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 900px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Glass Card */
+.glass-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--shadow-md);
+}
+
+/* Form Controls */
+.input-field {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background: #FAFBFD;
+  transition: var(--transition);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.12);
+}
+
+/* Responsive Grid for Properties */
+.grid-properties {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 2rem;
+}
+
+@media (max-width: 768px) {
+  .grid-properties {
+    grid-template-columns: 1fr;
+  }
+}
