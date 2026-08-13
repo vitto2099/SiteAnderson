@@ -1,9 +1,9 @@
 import React from 'react';
 import { MapPin, Mail, Facebook, Phone, Award, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
+import { SITE_CONFIG, getWhatsAppUrl } from '../config';
 
 export default function AboutContact() {
-  const WHATSAPP_NUMBER = "5547999999999";
-  const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent("Olá Anderson! Vim pelo site e gostaria de tirar algumas dúvidas.")}`;
+  const waUrl = getWhatsAppUrl("Olá Anderson! Vim pelo site e gostaria de tirar algumas dúvidas.");
 
   return (
     <section style={{ padding: '5rem 0', backgroundColor: 'var(--bg-main)' }} id="sobre">

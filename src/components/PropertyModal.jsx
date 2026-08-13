@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { X, MapPin, Maximize2, Bed, Bath, Car, CheckCircle2, MessageCircle, Calculator } from 'lucide-react';
+import { X, MapPin, Maximize2, Bed, Bath, Car, CheckCircle2, MessageCircle, Calculator, Share2, Copy, Check } from 'lucide-react';
 import FinancingCalculator from './FinancingCalculator';
+import { getWhatsAppUrl } from '../config';
 
 export default function PropertyModal({ property, onClose }) {
   const [activeTab, setActiveTab] = useState('details');
   const [selectedImg, setSelectedImg] = useState(property.imageUrl);
+  const [copied, setCopied] = useState(false);
 
   if (!property) return null;
 
@@ -12,9 +14,14 @@ export default function PropertyModal({ property, onClose }) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
   };
 
-  const WHATSAPP_NUMBER = "5547999999999";
-  const waMsg = encodeURIComponent(`Olá Anderson Kunicki! Gostaria de agendar uma visita para o imóvel: "${property.title}" (Ref: ${property.id}) no valor de ${formatMoney(property.price)}.`);
-  const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${waMsg}`;
+  const waUrl = getWhatsAppUrl(`Olá Anderson Kunicki! Gostaria de agendar uma visita para o imóvel: "${property.title}" (Ref: ${property.id}) no valor de ${formatMoney(property.price)}.`);
+
+  const handleCopyLink = () => {
+    const shareUrl = `${window.location.origin}${window.location.pathname}#imoveis`;
+    navigator.clipboard.writeText(`${shareUrl}\nConfira este imóvel: ${property.title} (${formatMoney(property.price)})`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   const allImages = property.images && property.images.length > 0 ? property.images : [property.imageUrl];
 
@@ -43,50 +50,30 @@ export default function PropertyModal({ property, onClose }) {
             </h2>
           </div>
 
-          <button 
-            onClick={onClose} 
-            style={{ padding: '0.4rem', borderRadius: '50%', backgroundColor: 'var(--bg-main)', color: 'var(--text-muted)' }}
-          >
-            <X size={20} />
-          </button>
-        </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button
+              onClick={handleCopyLink}
+              className="btn btn-outline btn-sm"
+              title="Copiar dados para compartilhar"
+              style={{ fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}
+            >
+              {copied ? <Check size={15} style={{ color: '#16A34A' }} /> : <Share2 size={15} />}
+              {copied ? 'Copiado!' : 'Compartilhar'}
+            </button>
 
-        {/* Tabs Bar */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-subtle)', backgroundColor: 'var(--bg-main)', padding: '0 1.75rem' }}>
-          <button
-            onClick={() => setActiveTab('details')}
-            style={{
-              padding: '0.85rem 1.25rem',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              color: activeTab === 'details' ? 'var(--accent-red)' : 'var(--text-muted)',
-              borderBottom: activeTab === 'details' ? '3px solid var(--accent-red)' : '3px solid transparent'
-            }}
-          >
-            Visão Geral & Fotos
-          </button>
-          <button
-            onClick={() => setActiveTab('financing')}
-            style={{
-              padding: '0.85rem 1.25rem',
-              fontWeight: 700,
-              fontSize: '0.9rem',
-              color: activeTab === 'financing' ? 'var(--accent-red)' : 'var(--text-muted)',
-              borderBottom: activeTab === 'financing' ? '3px solid var(--accent-red)' : '3px solid transparent',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.35rem'
-            }}
-          >
-            <Calculator size={16} /> Simular Financiamento
-          </button>
+            <button 
+              onClick={onClose} 
+              style={{ padding: '0.4rem', borderRadius: '50%', backgroundColor: 'var(--bg-main)', color: 'var(--text-muted)' }}
+              aria-label="Fechar modal"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Modal Body */}
         <div style={{ padding: '1.75rem' }}>
-          {activeTab === 'details' ? (
-            <>
-              {/* Photo Viewer */}
+          {/* Photo Viewer */}
               <div style={{ height: '380px', borderRadius: 'var(--radius-md)', overflow: 'hidden', marginBottom: '1rem', position: 'relative' }}>
                 <img 
                   src={selectedImg} 
@@ -223,10 +210,6 @@ export default function PropertyModal({ property, onClose }) {
                   <MessageCircle size={18} /> Agendar Visita via WhatsApp
                 </a>
               </div>
-            </>
-          ) : (
-            <FinancingCalculator initialPrice={property.price} />
-          )}
         </div>
       </div>
     </div>

@@ -122,6 +122,22 @@ export default function PropertyFilters({ filters, setFilters, totalCount, onRes
             onChange={(e) => setFilters(prev => ({ ...prev, keyword: e.target.value }))}
           />
         </div>
+
+        <div>
+          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '0.25rem', display: 'block' }}>
+            Ordenar por
+          </label>
+          <select
+            className="input-field"
+            style={{ padding: '0.55rem 0.85rem', fontSize: '0.875rem' }}
+            value={filters.sortBy || 'recente'}
+            onChange={(e) => setFilters(prev => ({ ...prev, sortBy: e.target.value }))}
+          >
+            <option value="recente">Mais recentes</option>
+            <option value="preco-asc">Menor preço primeiro</option>
+            <option value="preco-desc">Maior preço primeiro</option>
+          </select>
+        </div>
       </div>
     </div>
   );

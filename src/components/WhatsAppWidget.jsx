@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { MessageCircle, X, Send } from 'lucide-react';
+import { SITE_CONFIG, getWhatsAppUrl } from '../config';
 
 export default function WhatsAppWidget() {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
 
-  const WHATSAPP_NUMBER = "5547999999999";
-
   const handleSend = (e) => {
     e.preventDefault();
-    const text = encodeURIComponent(message || "Olá Anderson! Vim pelo site e gostaria de atendimento.");
-    window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${text}`, '_blank');
+    const customMsg = message || "Olá Anderson! Vim pelo site e gostaria de atendimento.";
+    window.open(getWhatsAppUrl(customMsg), '_blank');
     setOpen(false);
     setMessage('');
   };
@@ -19,32 +18,106 @@ export default function WhatsAppWidget() {
     <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 999 }}>
       {/* Popover Window */}
       {open && (
-        <div className="card shadow-lg border-0 mb-3" style={{ width: '320px', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-          <div className="card-header border-0 text-white d-flex justify-content-between align-items-center" style={{ backgroundColor: '#075E54', padding: '0.85rem 1.1rem' }}>
-            <div>
-              <strong className="d-block" style={{ fontSize: '0.95rem' }}>Anderson Kunicki</strong>
-              <small style={{ fontSize: '0.75rem', opacity: 0.9 }}>Corretor Imobiliário • Online</small>
+        <div style={{
+          width: '330px',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '18px',
+          overflow: 'hidden',
+          boxShadow: '0 12px 32px rgba(7, 23, 44, 0.22)',
+          border: '1px solid var(--border-subtle)',
+          marginBottom: '1rem',
+          animation: 'scaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          {/* Header */}
+          <div style={{
+            backgroundColor: '#075E54',
+            color: '#FFFFFF',
+            padding: '1rem 1.15rem',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '50%',
+                backgroundColor: '#128C7E',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 700,
+                fontSize: '0.9rem',
+                border: '2px solid #25D366'
+              }}>
+                AK
+              </div>
+              <div>
+                <strong style={{ display: 'block', fontSize: '0.95rem', lineHeight: 1.2 }}>{SITE_CONFIG.brokerName}</strong>
+                <span style={{ fontSize: '0.75rem', opacity: 0.9, display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <span style={{ width: '7px', height: '7px', borderRadius: '50%', backgroundColor: '#25D366', display: 'inline-block' }}></span>
+                  {SITE_CONFIG.creci} • Online
+                </span>
+              </div>
             </div>
-            <button onClick={() => setOpen(false)} className="btn text-white p-0 border-0">
-              <X size={18} />
+            <button 
+              onClick={() => setOpen(false)} 
+              style={{ color: '#FFFFFF', opacity: 0.85, padding: '0.2rem', borderRadius: '50%' }}
+              aria-label="Fechar"
+            >
+              <X size={20} />
             </button>
           </div>
 
-          <div className="card-body" style={{ backgroundColor: '#ECE5DD', minHeight: '100px', fontSize: '0.875rem' }}>
-            <div className="bg-white p-2 rounded shadow-sm text-dark" style={{ maxWidth: '85%' }}>
-              Olá! Como posso ajudar você a encontrar o imóvel ideal em Itaiópolis?
+          {/* Body */}
+          <div style={{
+            backgroundColor: '#E5DDD5',
+            backgroundImage: 'radial-gradient(rgba(0,0,0,0.04) 1px, transparent 0)',
+            backgroundSize: '12px 12px',
+            padding: '1.25rem 1rem',
+            minHeight: '110px'
+          }}>
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              padding: '0.75rem 1rem',
+              borderRadius: '0 14px 14px 14px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+              color: 'var(--text-dark)',
+              fontSize: '0.875rem',
+              lineHeight: 1.45,
+              maxWidth: '90%'
+            }}>
+              Olá! 👋 Como posso ajudar você a encontrar ou negociar seu imóvel ideal em Itaiópolis e região?
+              <div style={{ fontSize: '0.68rem', color: '#94A3B8', textAlign: 'right', marginTop: '0.35rem' }}>Agora</div>
             </div>
           </div>
 
-          <form onSubmit={handleSend} className="card-footer bg-white p-2 border-top d-flex gap-2">
+          {/* Footer Form */}
+          <form 
+            onSubmit={handleSend} 
+            style={{
+              padding: '0.75rem 0.85rem',
+              backgroundColor: '#FFFFFF',
+              borderTop: '1px solid var(--border-subtle)',
+              display: 'flex',
+              gap: '0.5rem',
+              alignItems: 'center'
+            }}
+          >
             <input 
               type="text" 
-              className="form-control form-control-sm" 
+              className="input-field" 
               placeholder="Escreva sua mensagem..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
+              style={{ fontSize: '0.85rem', padding: '0.55rem 0.85rem' }}
             />
-            <button type="submit" className="btn btn-whatsapp btn-sm">
+            <button 
+              type="submit" 
+              className="btn btn-whatsapp"
+              style={{ padding: '0.55rem 0.85rem', borderRadius: 'var(--radius-md)' }}
+              title="Enviar no WhatsApp"
+            >
               <Send size={16} />
             </button>
           </form>
@@ -54,13 +127,18 @@ export default function WhatsAppWidget() {
       {/* Floating Trigger Button */}
       <button 
         onClick={() => setOpen(!open)}
-        className="btn btn-whatsapp rounded-circle p-0 d-flex align-items-center justify-content-center shadow-lg"
+        className="btn btn-whatsapp"
         style={{
           width: '60px',
           height: '60px',
-          boxShadow: '0 8px 24px rgba(37, 211, 102, 0.4)'
+          borderRadius: '50%',
+          padding: 0,
+          boxShadow: '0 8px 24px rgba(37, 211, 102, 0.45)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
         }}
-        aria-label="Abrir WhatsApp"
+        aria-label="Abrir conversa no WhatsApp"
       >
         <MessageCircle size={28} />
       </button>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Calculator, DollarSign, Percent, Calendar, MessageCircle, HelpCircle } from 'lucide-react';
+import { getWhatsAppUrl } from '../config';
 
 export default function FinancingCalculator({ initialPrice = 450000 }) {
   const [price, setPrice] = useState(initialPrice);
@@ -23,9 +24,7 @@ export default function FinancingCalculator({ initialPrice = 450000 }) {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
   };
 
-  const WHATSAPP_NUMBER = "5547999999999";
-  const waMsg = encodeURIComponent(`Olá Anderson! Fiz uma simulação de financiamento no site para um imóvel de ${formatMoney(price)} com entrada de ${formatMoney(downPaymentAmount)}. Gostaria de verificar as opções de crédito com você.`);
-  const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${waMsg}`;
+  const waUrl = getWhatsAppUrl(`Olá Anderson! Fiz uma simulação de financiamento no site para um imóvel de ${formatMoney(price)} com entrada de ${formatMoney(downPaymentAmount)}. Gostaria de verificar as opções de crédito com você.`);
 
   return (
     <div style={{

@@ -1,104 +1,227 @@
 import React, { useState } from 'react';
-import { Building, Star, Tag, Key, Plus, Edit, Trash2, RotateCcw, Search, Eye, Filter, CheckCircle } from 'lucide-react';
+import { 
+  Building, Star, Tag, Key, Plus, Edit, Trash2, RotateCcw, Search, Eye, Filter, 
+  CheckCircle, LogOut, User, Copy, Download, Upload, Link as LinkIcon, CheckSquare, 
+  Square, ShieldAlert, DollarSign, Layers
+} from 'lucide-react';
 
-export default function AdminDashboard({ properties, onOpenAddModal, onEditProperty, onDeleteProperty, onToggleFeatured, onResetDefaults, onSelectProperty }) {
-  const [adminTab, setAdminTab] = useState('list'); // 'list' | 'stats'
+export default function AdminDashboard({ 
+  properties, 
+  onOpenAddModal, 
+  onEditProperty, 
+  onDeleteProperty, 
+  onDuplicateProperty,
+  onToggleFeatured, 
+  onToggleStatus,
+  onBulkDelete,
+  onBulkStatusChange,
+  onExportBackup,
+  onImportBackup,
+  onResetDefaults, 
+  onSelectProperty, 
+  currentUser, 
+  onLogout 
+}) {
   const [searchTerm, setSearchTerm] = useState('');
   const [purposeFilter, setPurposeFilter] = useState('todos');
+  const [typeFilter, setTypeFilter] = useState('todos');
+  const [statusFilter, setStatusFilter] = useState('todos');
 
+  // Multi-selection state for batch actions
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  // Stats calculation
   const total = properties.length;
   const featured = properties.filter(p => p.featured).length;
   const sale = properties.filter(p => p.purpose === 'venda').length;
   const rent = properties.filter(p => p.purpose === 'aluguel').length;
+  const sold = properties.filter(p => p.status === 'vendido').length;
 
+  const totalPortfolioValue = properties
+    .filter(p => p.purpose === 'venda' && p.status !== 'vendido')
+    .reduce((sum, p) => sum + (Number(p.price) || 0), 0);
+
+  // Filter properties
   const filteredProperties = properties.filter(p => {
     if (purposeFilter !== 'todos' && p.purpose !== purposeFilter) return false;
+    if (typeFilter !== 'todos' && p.type !== typeFilter) return false;
+    if (statusFilter !== 'todos' && (p.status || 'ativo') !== statusFilter) return false;
+    
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
-    return (
-      p.title.toLowerCase().includes(term) ||
-      p.id.toLowerCase().includes(term) ||
-      p.neighborhood.toLowerCase().includes(term) ||
-      p.type.toLowerCase().includes(term)
-    );
+    const codeMatch = (p.code || p.id || '').toLowerCase().includes(term);
+    const titleMatch = (p.title || '').toLowerCase().includes(term);
+    const neighMatch = (p.neighborhood || '').toLowerCase().includes(term);
+    const addressMatch = (p.address || '').toLowerCase().includes(term);
+    
+    return codeMatch || titleMatch || neighMatch || addressMatch;
   });
+
+  // Select all / Deselect all handlers
+  const isAllSelected = filteredProperties.length > 0 && filteredProperties.every(p => selectedIds.includes(p.id));
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredProperties.map(p => p.id));
+    }
+  };
+
+  const toggleSelectOne = (id) => {
+    if (selectedIds.includes(id)) {
+      setSelectedIds(selectedIds.filter(i => i !== id));
+    } else {
+      setSelectedIds([...selectedIds, id]);
+    }
+  };
+
+  const handleCopyLink = (prop) => {
+    const link = `${window.location.origin}${window.location.pathname}#imoveis`;
+    navigator.clipboard.writeText(link);
+    alert(`Link do anúncio "${prop.title}" copiado para a área de transferência!`);
+  };
+
+  const handleImportFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      onImportBackup(file);
+      e.target.value = null; // reset input
+    }
+  };
 
   const formatMoney = (val) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
   };
 
+  const getStatusBadge = (status) => {
+    const st = status || 'ativo';
+    if (st === 'vendido') return <span className="badge" style={{ backgroundColor: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5' }}>VENDIDO</span>;
+    if (st === 'reservado') return <span className="badge" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A' }}>RESERVADO</span>;
+    return <span className="badge" style={{ backgroundColor: '#DCFCE7', color: '#166534', border: '1px solid #86EFAC' }}>DISPONÍVEL</span>;
+  };
+
   return (
-    <section style={{ padding: '4rem 0', backgroundColor: '#EEF2F6', minHeight: '85vh' }} id="admin-panel">
+    <section style={{ padding: '3.5rem 0 5rem', backgroundColor: '#EEF2F6', minHeight: '90vh' }} id="admin-panel">
       <div className="container">
         
-        {/* Admin Header */}
+        {/* Top Header Bar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
           <div>
-            <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Painel Restrito • CRECI-SC 60173 F
-            </span>
-            <h2 style={{ fontSize: '2.1rem', color: 'var(--primary-dark)', margin: '0.25rem 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                Painel Restrito • CRECI-SC 60173 F
+              </span>
+              {currentUser && (
+                <span style={{
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  backgroundColor: '#FFFFFF',
+                  color: 'var(--primary-blue)',
+                  padding: '0.25rem 0.75rem',
+                  borderRadius: '20px',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  border: '1px solid var(--border-subtle)',
+                  boxShadow: 'var(--shadow-sm)'
+                }}>
+                  <User size={14} style={{ color: 'var(--accent-red)' }} /> Logado como: <strong>{currentUser}</strong>
+                </span>
+              )}
+            </div>
+            <h2 style={{ fontSize: '2.1rem', color: 'var(--primary-dark)', margin: '0.25rem 0', fontWeight: 800 }}>
               Gestão de Anúncios Imobiliários
             </h2>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <button className="btn btn-outline" onClick={onResetDefaults}>
-              <RotateCcw size={16} /> Restaurar Exemplo
+          {/* Top Actions */}
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <button className="btn btn-outline btn-sm" onClick={onExportBackup} title="Baixar arquivo JSON com backup de todos os imóveis">
+              <Download size={15} /> Exportar Backup
             </button>
-            <button className="btn btn-red" onClick={onOpenAddModal}>
+
+            <label className="btn btn-outline btn-sm" style={{ cursor: 'pointer' }} title="Importar arquivo JSON de imóveis">
+              <Upload size={15} /> Importar Backup
+              <input type="file" accept=".json" onChange={handleImportFileChange} style={{ display: 'none' }} />
+            </label>
+
+            <button className="btn btn-outline btn-sm" onClick={onResetDefaults} title="Restaurar imóveis de demonstração originais">
+              <RotateCcw size={15} /> Restaurar Exemplo
+            </button>
+
+            <button className="btn btn-red" onClick={onOpenAddModal} style={{ fontWeight: 700, padding: '0.6rem 1.25rem' }}>
               <Plus size={18} /> Novo Anúncio
             </button>
+
+            {onLogout && (
+              <button 
+                className="btn btn-outline btn-sm" 
+                onClick={onLogout} 
+                style={{
+                  color: '#DC2626',
+                  borderColor: '#FCA5A5',
+                  backgroundColor: '#FEF2F2',
+                  fontWeight: 700,
+                  padding: '0.6rem 1rem'
+                }} 
+                title="Encerrar sessão no painel"
+              >
+                <LogOut size={16} /> Sair do Painel
+              </button>
+            )}
           </div>
         </div>
 
         {/* Dashboard Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
+          
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(19, 64, 116, 0.1)', color: 'var(--primary-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Building size={24} />
             </div>
             <div>
               <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{total}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Imóveis Cadastrados</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Cadastrados</div>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(212, 175, 55, 0.15)', color: '#B48B1B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Star size={24} />
             </div>
             <div>
               <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{featured}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Em Destaque</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Em Destaque</div>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(200, 29, 37, 0.1)', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Tag size={24} />
             </div>
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{sale}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>À Venda</div>
+              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{sale} / {rent}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Venda / Aluguel</div>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(37, 211, 102, 0.15)', color: '#1EBE5D', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Key size={24} />
+          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <DollarSign size={24} />
             </div>
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{rent}</div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase' }}>Para Alugar</div>
+              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{formatMoney(totalPortfolioValue)}</div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>VGV Carteira Vendas</div>
             </div>
           </div>
+
         </div>
 
-        {/* Dedicated Admin Action Header Bar */}
+        {/* Filter and Search Bar */}
         <div style={{
           backgroundColor: 'var(--bg-card)',
-          padding: '1rem 1.5rem',
+          padding: '1.25rem 1.5rem',
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-subtle)',
           marginBottom: '1rem',
@@ -106,102 +229,302 @@ export default function AdminDashboard({ properties, onOpenAddModal, onEditPrope
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '1rem'
+          gap: '1rem',
+          boxShadow: 'var(--shadow-sm)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '260px' }}>
+          
+          {/* Keyword Search */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '280px', backgroundColor: '#F8FAFC', padding: '0.4rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
             <Search size={18} style={{ color: 'var(--text-muted)' }} />
             <input 
               type="text" 
               className="input-field" 
-              placeholder="Buscar imóvel por código, título ou bairro no painel..." 
+              placeholder="Buscar por código (ex: AK-101), título, rua ou bairro..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ border: 'none', background: 'transparent', padding: '0.2rem 0' }}
+              style={{ border: 'none', background: 'transparent', padding: '0.2rem 0', boxShadow: 'none' }}
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Filtrar:</span>
-            <select 
-              className="input-field" 
-              value={purposeFilter}
-              onChange={(e) => setPurposeFilter(e.target.value)}
-              style={{ padding: '0.35rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
-            >
-              <option value="todos">Todos</option>
-              <option value="venda">Apenas Venda</option>
-              <option value="aluguel">Apenas Aluguel</option>
-            </select>
+          {/* Select Filters */}
+          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div>
+              <select 
+                className="input-field" 
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+              >
+                <option value="todos">Todos os Tipos</option>
+                <option value="casa">Casas</option>
+                <option value="terreno">Terrenos</option>
+                <option value="sitio">Sítios / Chácaras</option>
+                <option value="apartamento">Apartamentos</option>
+                <option value="comercial">Comerciais</option>
+              </select>
+            </div>
+
+            <div>
+              <select 
+                className="input-field" 
+                value={purposeFilter}
+                onChange={(e) => setPurposeFilter(e.target.value)}
+                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+              >
+                <option value="todos">Todas Finalidades</option>
+                <option value="venda">Venda</option>
+                <option value="aluguel">Aluguel</option>
+              </select>
+            </div>
+
+            <div>
+              <select 
+                className="input-field" 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+              >
+                <option value="todos">Todos os Status</option>
+                <option value="ativo">Disponíveis</option>
+                <option value="reservado">Reservados</option>
+                <option value="vendido">Vendidos</option>
+              </select>
+            </div>
           </div>
         </div>
 
-        {/* Listings Table */}
+        {/* Batch Actions Bar (Only visible when items are selected) */}
+        {selectedIds.length > 0 && (
+          <div style={{
+            backgroundColor: 'var(--primary-dark)',
+            color: '#FFFFFF',
+            padding: '0.85rem 1.5rem',
+            borderRadius: 'var(--radius-md)',
+            marginBottom: '1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem',
+            boxShadow: 'var(--shadow-md)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontWeight: 600, fontSize: '0.9rem' }}>
+              <CheckSquare size={18} style={{ color: 'var(--gold-primary)' }} />
+              <span>{selectedIds.length} imóvel(is) selecionado(s)</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button 
+                className="btn btn-sm" 
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF' }}
+                onClick={() => onBulkStatusChange(selectedIds, 'vendido')}
+              >
+                Marcar como Vendido
+              </button>
+              <button 
+                className="btn btn-sm" 
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.15)', color: '#FFFFFF' }}
+                onClick={() => onBulkStatusChange(selectedIds, 'ativo')}
+              >
+                Marcar como Disponível
+              </button>
+              <button 
+                className="btn btn-sm" 
+                style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
+                onClick={() => {
+                  onBulkDelete(selectedIds);
+                  setSelectedIds([]);
+                }}
+              >
+                <Trash2 size={14} /> Excluir Selecionados
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Main Listings Table */}
         <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', overflowX: 'auto', boxShadow: 'var(--shadow-sm)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
               <tr style={{ backgroundColor: '#F1F5F9', color: 'var(--primary-dark)', borderBottom: '1px solid var(--border-subtle)' }}>
-                <th style={{ padding: '1rem 1.25rem' }}>Foto</th>
-                <th style={{ padding: '1rem 1.25rem' }}>Título / Ref</th>
-                <th style={{ padding: '1rem 1.25rem' }}>Finalidade</th>
-                <th style={{ padding: '1rem 1.25rem' }}>Tipo</th>
-                <th style={{ padding: '1rem 1.25rem' }}>Valor</th>
-                <th style={{ padding: '1rem 1.25rem' }}>Destaque</th>
-                <th style={{ padding: '1rem 1.25rem' }}>Ações de Edição</th>
+                <th style={{ padding: '0.85rem 1rem', width: '40px', textAlign: 'center' }}>
+                  <input 
+                    type="checkbox" 
+                    checked={isAllSelected}
+                    onChange={toggleSelectAll}
+                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    title="Selecionar Todos"
+                  />
+                </th>
+                <th style={{ padding: '0.85rem 1rem' }}>Foto</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Código / Título</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Tipo & Finalidade</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Valor</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Status</th>
+                <th style={{ padding: '0.85rem 1rem' }}>Destaque</th>
+                <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Ações de Gestão</th>
               </tr>
             </thead>
             <tbody>
               {filteredProperties.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>
-                    Nenhum imóvel encontrado para edição com os critérios informados.
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
+                    <Building size={40} style={{ color: '#CBD5E1', marginBottom: '0.75rem' }} />
+                    <div>Nenhum imóvel encontrado no painel com os filtros atuais.</div>
                   </td>
                 </tr>
               ) : (
-                filteredProperties.map(prop => (
-                  <tr key={prop.id} style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                    <td style={{ padding: '0.85rem 1.25rem' }}>
-                      <img 
-                        src={prop.imageUrl} 
-                        alt={prop.title} 
-                        style={{ width: '52px', height: '52px', borderRadius: 'var(--radius-sm)', objectFit: 'cover' }}
-                        onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=200&q=80'; }}
-                      />
-                    </td>
-                    <td style={{ padding: '0.85rem 1.25rem' }}>
-                      <strong style={{ color: 'var(--primary-dark)' }}>{prop.title}</strong>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{prop.id} • {prop.neighborhood}</div>
-                    </td>
-                    <td style={{ padding: '0.85rem 1.25rem' }}>
-                      <span className={`badge ${prop.purpose === 'venda' ? 'badge-venda' : 'badge-aluguel'}`}>
-                        {prop.purpose.toUpperCase()}
-                      </span>
-                    </td>
-                    <td style={{ padding: '0.85rem 1.25rem', textTransform: 'capitalize' }}>{prop.type}</td>
-                    <td style={{ padding: '0.85rem 1.25rem', fontWeight: 700 }}>{formatMoney(prop.price)}</td>
-                    <td style={{ padding: '0.85rem 1.25rem' }}>
-                      <button 
-                        onClick={() => onToggleFeatured(prop.id)}
-                        style={{ color: prop.featured ? 'var(--gold-primary)' : 'var(--text-light)', cursor: 'pointer' }}
-                        title="Alternar Imóvel em Destaque"
-                      >
-                        <Star size={20} fill={prop.featured ? 'currentColor' : 'none'} />
-                      </button>
-                    </td>
-                    <td style={{ padding: '0.85rem 1.25rem' }}>
-                      <div style={{ display: 'flex', gap: '0.4rem' }}>
-                        <button className="btn btn-outline btn-sm" onClick={() => onSelectProperty(prop)} title="Visualizar">
-                          <Eye size={14} />
+                filteredProperties.map(prop => {
+                  const isSelected = selectedIds.includes(prop.id);
+                  const refCode = prop.code || prop.id;
+
+                  return (
+                    <tr 
+                      key={prop.id} 
+                      style={{ 
+                        borderBottom: '1px solid var(--border-subtle)',
+                        backgroundColor: isSelected ? 'rgba(30, 64, 175, 0.03)' : 'transparent',
+                        transition: 'background-color 0.15s'
+                      }}
+                    >
+                      {/* Checkbox */}
+                      <td style={{ padding: '0.85rem 1rem', textAlign: 'center' }}>
+                        <input 
+                          type="checkbox" 
+                          checked={isSelected}
+                          onChange={() => toggleSelectOne(prop.id)}
+                          style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                        />
+                      </td>
+
+                      {/* Cover Photo */}
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <img 
+                          src={prop.imageUrl || (prop.images && prop.images[0])} 
+                          alt={prop.title} 
+                          style={{ width: '56px', height: '56px', borderRadius: 'var(--radius-sm)', objectFit: 'cover' }}
+                          onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=200&q=80'; }}
+                        />
+                      </td>
+
+                      {/* Code & Title */}
+                      <td style={{ padding: '0.85rem 1rem', maxWidth: '280px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-red)', backgroundColor: 'rgba(200, 29, 37, 0.08)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
+                            {refCode}
+                          </span>
+                        </div>
+                        <div style={{ fontWeight: 700, color: 'var(--primary-dark)', marginTop: '0.2rem', lineHeight: 1.25 }}>
+                          {prop.title}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
+                          {prop.neighborhood} • {prop.city || 'Itaiópolis - SC'}
+                        </div>
+                      </td>
+
+                      {/* Type & Purpose */}
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <div style={{ textTransform: 'capitalize', fontWeight: 600, color: 'var(--primary-dark)' }}>
+                          {prop.type}
+                        </div>
+                        <span className={`badge ${prop.purpose === 'venda' ? 'badge-venda' : 'badge-aluguel'}`} style={{ marginTop: '0.25rem' }}>
+                          {prop.purpose.toUpperCase()}
+                        </span>
+                      </td>
+
+                      {/* Price */}
+                      <td style={{ padding: '0.85rem 1rem', fontWeight: 800, color: 'var(--primary-dark)' }}>
+                        {formatMoney(prop.price)}
+                      </td>
+
+                      {/* Status Toggle Dropdown */}
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <select
+                          value={prop.status || 'ativo'}
+                          onChange={(e) => onToggleStatus(prop.id, e.target.value)}
+                          style={{
+                            padding: '0.25rem 0.5rem',
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            borderRadius: '12px',
+                            border: '1px solid var(--border-subtle)',
+                            cursor: 'pointer',
+                            backgroundColor: prop.status === 'vendido' ? '#FEE2E2' : (prop.status === 'reservado' ? '#FEF3C7' : '#DCFCE7'),
+                            color: prop.status === 'vendido' ? '#991B1B' : (prop.status === 'reservado' ? '#92400E' : '#166534')
+                          }}
+                        >
+                          <option value="ativo">Disponível</option>
+                          <option value="reservado">Reservado</option>
+                          <option value="vendido">Vendido / Alugado</option>
+                        </select>
+                      </td>
+
+                      {/* Featured Toggle */}
+                      <td style={{ padding: '0.85rem 1rem' }}>
+                        <button 
+                          onClick={() => onToggleFeatured(prop.id)}
+                          style={{ color: prop.featured ? 'var(--gold-primary)' : '#CBD5E1', cursor: 'pointer', background: 'none', border: 'none' }}
+                          title="Alternar Destaque na Vitrine Home"
+                        >
+                          <Star size={22} fill={prop.featured ? 'currentColor' : 'none'} />
                         </button>
-                        <button className="btn btn-navy btn-sm" onClick={() => onEditProperty(prop)} title="Editar Anúncio">
-                          <Edit size={14} /> Editar
-                        </button>
-                        <button className="btn btn-outline btn-sm" onClick={() => onDeleteProperty(prop.id)} style={{ color: 'var(--accent-red)' }} title="Excluir">
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
+                      </td>
+
+                      {/* Action Buttons */}
+                      <td style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '0.35rem', justifyContent: 'flex-end' }}>
+                          
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => onSelectProperty(prop)} 
+                            title="Visualizar em tamanho real"
+                            style={{ padding: '0.35rem 0.5rem' }}
+                          >
+                            <Eye size={14} />
+                          </button>
+
+                          <button 
+                            className="btn btn-navy btn-sm" 
+                            onClick={() => onEditProperty(prop)} 
+                            title="Editar todas as informações do imóvel"
+                            style={{ padding: '0.35rem 0.65rem' }}
+                          >
+                            <Edit size={14} /> Editar
+                          </button>
+
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => onDuplicateProperty(prop)} 
+                            title="Duplicar anúncio como novo imóvel"
+                            style={{ padding: '0.35rem 0.5rem' }}
+                          >
+                            <Copy size={14} />
+                          </button>
+
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => handleCopyLink(prop)} 
+                            title="Copiar link do imóvel"
+                            style={{ padding: '0.35rem 0.5rem' }}
+                          >
+                            <LinkIcon size={14} />
+                          </button>
+
+                          <button 
+                            className="btn btn-outline btn-sm" 
+                            onClick={() => onDeleteProperty(prop.id)} 
+                            style={{ color: 'var(--accent-red)', borderColor: '#FCA5A5', padding: '0.35rem 0.5rem' }} 
+                            title="Excluir imóvel permanentemente"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+
+                        </div>
+                      </td>
+
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>

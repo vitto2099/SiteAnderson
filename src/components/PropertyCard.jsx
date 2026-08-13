@@ -1,14 +1,13 @@
 import React from 'react';
 import { MapPin, Maximize2, Bed, Bath, Car, Star, Eye, MessageCircle } from 'lucide-react';
+import { getWhatsAppUrl } from '../config';
 
 export default function PropertyCard({ property, onSelectProperty }) {
   const formatMoney = (val) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
   };
 
-  const WHATSAPP_NUMBER = "5547999999999";
-  const waMsg = encodeURIComponent(`Olá Anderson Kunicki! Tenho interesse no imóvel: "${property.title}" (Ref: ${property.id}) - Valor: ${formatMoney(property.price)}.`);
-  const waUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${waMsg}`;
+  const waUrl = getWhatsAppUrl(`Olá Anderson Kunicki! Tenho interesse no imóvel: "${property.title}" (Ref: ${property.id}) - Valor: ${formatMoney(property.price)}.`);
 
   return (
     <div style={{

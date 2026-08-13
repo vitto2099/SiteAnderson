@@ -1,5 +1,6 @@
 import React from 'react';
-import { MapPin, Mail, Facebook, Phone, Shield } from 'lucide-react';
+import { MapPin, Mail, Facebook, Phone, Shield, Github } from 'lucide-react';
+import { SITE_CONFIG } from '../config';
 
 export default function Footer({ setCurrentTab }) {
   return (
@@ -18,7 +19,7 @@ export default function Footer({ setCurrentTab }) {
               Anderson <span style={{ color: 'var(--accent-red)' }}>Kunicki</span>
             </div>
             <div style={{ fontSize: '0.8rem', color: '#94A3B8', fontWeight: 600, textTransform: 'uppercase', marginBottom: '1rem' }}>
-              Corretor Imobiliário • CRECI-SC 60173 F
+              Corretor Imobiliário • {SITE_CONFIG.creci}
             </div>
             <p style={{ color: '#94A3B8', fontSize: '0.925rem', lineHeight: 1.6 }}>
               Sua referência em negócios imobiliários seguros em Itaiópolis e região. Compra, venda, aluguel e administração de imóveis.
@@ -34,11 +35,6 @@ export default function Footer({ setCurrentTab }) {
               <li>
                 <button onClick={() => setCurrentTab('catalog')} style={{ color: '#CBD5E1', fontSize: '0.9rem' }}>
                   Imóveis Disponíveis
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setCurrentTab('financing')} style={{ color: '#CBD5E1', fontSize: '0.9rem' }}>
-                  Simulador de Financiamento
                 </button>
               </li>
               <li>
@@ -94,7 +90,23 @@ export default function Footer({ setCurrentTab }) {
             &copy; 2026 Anderson Kunicki - Corretor Imobiliário (CRECI-SC 60173 F). Todos os direitos reservados.
           </div>
           <div>
-            Desenvolvido com padrão visual exclusivo e tecnologia React.
+            Desenvolvido por <strong style={{ color: '#E2E8F0' }}>Vitor Kunicki</strong>{' '}
+            <a 
+              href="https://github.com/vitto2099" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ 
+                color: '#93C5FD', 
+                fontWeight: 600, 
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.25rem',
+                marginLeft: '0.25rem'
+              }}
+            >
+              <Github size={14} /> @vitto2099
+            </a>
           </div>
         </div>
       </div>
