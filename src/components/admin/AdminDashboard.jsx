@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  Building, Star, Tag, Key, Plus, Edit, Trash2, RotateCcw, Search, Eye, Filter, 
-  CheckCircle, LogOut, User, Copy, Download, Upload, Link as LinkIcon, CheckSquare, 
-  Square, ShieldAlert, DollarSign, Layers
+  Building, Star, Tag, Plus, Edit, Trash2, Search, Eye, 
+  LogOut, User, Copy, Download, Upload, Link as LinkIcon, CheckSquare, 
+  DollarSign, PlusCircle, KeyRound
 } from 'lucide-react';
+import { formatMoney } from '../../utils/formatters';
+import ChangePasswordModal from './ChangePasswordModal';
 
 export default function AdminDashboard({ 
   properties, 
@@ -17,11 +19,12 @@ export default function AdminDashboard({
   onBulkStatusChange,
   onExportBackup,
   onImportBackup,
-  onResetDefaults, 
   onSelectProperty, 
   currentUser, 
-  onLogout 
+  onLogout,
+  onUpdatePassword
 }) {
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [purposeFilter, setPurposeFilter] = useState('todos');
   const [typeFilter, setTypeFilter] = useState('todos');
@@ -35,7 +38,6 @@ export default function AdminDashboard({
   const featured = properties.filter(p => p.featured).length;
   const sale = properties.filter(p => p.purpose === 'venda').length;
   const rent = properties.filter(p => p.purpose === 'aluguel').length;
-  const sold = properties.filter(p => p.status === 'vendido').length;
 
   const totalPortfolioValue = properties
     .filter(p => p.purpose === 'venda' && p.status !== 'vendido')
@@ -57,7 +59,6 @@ export default function AdminDashboard({
     return codeMatch || titleMatch || neighMatch || addressMatch;
   });
 
-  // Select all / Deselect all handlers
   const isAllSelected = filteredProperties.length > 0 && filteredProperties.every(p => selectedIds.includes(p.id));
 
   const toggleSelectAll = () => {
@@ -86,72 +87,66 @@ export default function AdminDashboard({
     const file = e.target.files[0];
     if (file) {
       onImportBackup(file);
-      e.target.value = null; // reset input
+      e.target.value = null;
     }
   };
 
-  const formatMoney = (val) => {
-    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
-  };
-
-  const getStatusBadge = (status) => {
-    const st = status || 'ativo';
-    if (st === 'vendido') return <span className="badge" style={{ backgroundColor: '#FEE2E2', color: '#991B1B', border: '1px solid #FCA5A5' }}>VENDIDO</span>;
-    if (st === 'reservado') return <span className="badge" style={{ backgroundColor: '#FEF3C7', color: '#92400E', border: '1px solid #FDE68A' }}>RESERVADO</span>;
-    return <span className="badge" style={{ backgroundColor: '#DCFCE7', color: '#166534', border: '1px solid #86EFAC' }}>DISPONÍVEL</span>;
-  };
-
   return (
-    <section style={{ padding: '3.5rem 0 5rem', backgroundColor: '#EEF2F6', minHeight: '90vh' }} id="admin-panel">
+    <section style={{ padding: '3.5rem 0 5rem', backgroundColor: 'var(--bg-main)', minHeight: '90vh' }} id="admin-panel">
       <div className="container">
         
         {/* Top Header Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1.25rem', marginBottom: '2rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.35rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                 Painel Restrito • CRECI-SC 60173 F
               </span>
               {currentUser && (
                 <span style={{
-                  fontSize: '0.8rem',
+                  fontSize: '0.78rem',
                   fontWeight: 700,
                   backgroundColor: '#FFFFFF',
                   color: 'var(--primary-blue)',
-                  padding: '0.25rem 0.75rem',
+                  padding: '0.2rem 0.65rem',
                   borderRadius: '20px',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '0.4rem',
+                  gap: '0.35rem',
                   border: '1px solid var(--border-subtle)',
-                  boxShadow: 'var(--shadow-sm)'
+                  boxShadow: 'var(--shadow-xs)'
                 }}>
-                  <User size={14} style={{ color: 'var(--accent-red)' }} /> Logado como: <strong>{currentUser}</strong>
+                  <User size={13} style={{ color: 'var(--accent-red)' }} /> Corretor: <strong>{currentUser}</strong>
                 </span>
               )}
             </div>
-            <h2 style={{ fontSize: '2.1rem', color: 'var(--primary-dark)', margin: '0.25rem 0', fontWeight: 800 }}>
-              Gestão de Anúncios Imobiliários
+            <h2 style={{ fontSize: '2.1rem', color: 'var(--primary-dark)', margin: '0.2rem 0', fontWeight: 800 }}>
+              Gestão de Imóveis & Anúncios
             </h2>
           </div>
 
           {/* Top Actions */}
           <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            <button className="btn btn-outline btn-sm" onClick={onExportBackup} title="Baixar arquivo JSON com backup de todos os imóveis">
-              <Download size={15} /> Exportar Backup
+            <button className="btn btn-outline btn-sm" onClick={onExportBackup} title="Exportar backup completo em arquivo JSON">
+              <Download size={14} /> Exportar Backup
             </button>
 
-            <label className="btn btn-outline btn-sm" style={{ cursor: 'pointer' }} title="Importar arquivo JSON de imóveis">
-              <Upload size={15} /> Importar Backup
+            <label className="btn btn-outline btn-sm" style={{ cursor: 'pointer' }} title="Importar arquivo JSON com lista de imóveis">
+              <Upload size={14} /> Importar Backup
               <input type="file" accept=".json" onChange={handleImportFileChange} style={{ display: 'none' }} />
             </label>
 
-            <button className="btn btn-outline btn-sm" onClick={onResetDefaults} title="Restaurar imóveis de demonstração originais">
-              <RotateCcw size={15} /> Restaurar Exemplo
+            <button 
+              className="btn btn-outline btn-sm" 
+              onClick={() => setIsChangePasswordOpen(true)} 
+              title="Alterar Senha de Acesso ao Painel"
+              style={{ color: 'var(--primary-blue)', borderColor: 'var(--primary-light)', backgroundColor: '#EFF6FF' }}
+            >
+              <KeyRound size={14} /> Alterar Senha
             </button>
 
             <button className="btn btn-red" onClick={onOpenAddModal} style={{ fontWeight: 700, padding: '0.6rem 1.25rem' }}>
-              <Plus size={18} /> Novo Anúncio
+              <Plus size={18} /> Cadastrar Imóvel
             </button>
 
             {onLogout && (
@@ -163,11 +158,11 @@ export default function AdminDashboard({
                   borderColor: '#FCA5A5',
                   backgroundColor: '#FEF2F2',
                   fontWeight: 700,
-                  padding: '0.6rem 1rem'
+                  padding: '0.6rem 0.9rem'
                 }} 
                 title="Encerrar sessão no painel"
               >
-                <LogOut size={16} /> Sair do Painel
+                <LogOut size={15} /> Sair
               </button>
             )}
           </div>
@@ -176,42 +171,42 @@ export default function AdminDashboard({
         {/* Dashboard Stats */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
           
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(19, 64, 116, 0.1)', color: 'var(--primary-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '1.35rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-xs)' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--primary-light)', color: 'var(--primary-blue)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Building size={24} />
             </div>
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{total}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary-dark)', lineHeight: 1.1 }}>{total}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Cadastrados</div>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(212, 175, 55, 0.15)', color: '#B48B1B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '1.35rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-xs)' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--gold-subtle)', color: '#B48B1B', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Star size={24} />
             </div>
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{featured}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary-dark)', lineHeight: 1.1 }}>{featured}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Em Destaque</div>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(200, 29, 37, 0.1)', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '1.35rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-xs)' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--accent-red-subtle)', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Tag size={24} />
             </div>
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{sale} / {rent}</div>
+              <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--primary-dark)', lineHeight: 1.1 }}>{sale} / {rent}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Venda / Aluguel</div>
             </div>
           </div>
 
-          <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.25rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-sm)' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-md)', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ backgroundColor: '#FFFFFF', padding: '1.35rem 1.5rem', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', display: 'flex', alignItems: 'center', gap: '1.25rem', boxShadow: 'var(--shadow-xs)' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: 'var(--radius-sm)', backgroundColor: 'rgba(34, 197, 94, 0.12)', color: '#16A34A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <DollarSign size={24} />
             </div>
             <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--primary-dark)' }}>{formatMoney(totalPortfolioValue)}</div>
+              <div style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--primary-dark)', lineHeight: 1.1 }}>{formatMoney(totalPortfolioValue)}</div>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>VGV Carteira Vendas</div>
             </div>
           </div>
@@ -220,7 +215,7 @@ export default function AdminDashboard({
 
         {/* Filter and Search Bar */}
         <div style={{
-          backgroundColor: 'var(--bg-card)',
+          backgroundColor: '#FFFFFF',
           padding: '1.25rem 1.5rem',
           borderRadius: 'var(--radius-md)',
           border: '1px solid var(--border-subtle)',
@@ -230,11 +225,11 @@ export default function AdminDashboard({
           alignItems: 'center',
           flexWrap: 'wrap',
           gap: '1rem',
-          boxShadow: 'var(--shadow-sm)'
+          boxShadow: 'var(--shadow-xs)'
         }}>
           
           {/* Keyword Search */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '280px', backgroundColor: '#F8FAFC', padding: '0.4rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1, minWidth: '280px', backgroundColor: 'var(--bg-subtle)', padding: '0.45rem 0.85rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)' }}>
             <Search size={18} style={{ color: 'var(--text-muted)' }} />
             <input 
               type="text" 
@@ -253,7 +248,7 @@ export default function AdminDashboard({
                 className="input-field" 
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem', width: 'auto', backgroundColor: 'var(--bg-subtle)' }}
               >
                 <option value="todos">Todos os Tipos</option>
                 <option value="casa">Casas</option>
@@ -269,7 +264,7 @@ export default function AdminDashboard({
                 className="input-field" 
                 value={purposeFilter}
                 onChange={(e) => setPurposeFilter(e.target.value)}
-                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem', width: 'auto', backgroundColor: 'var(--bg-subtle)' }}
               >
                 <option value="todos">Todas Finalidades</option>
                 <option value="venda">Venda</option>
@@ -282,7 +277,7 @@ export default function AdminDashboard({
                 className="input-field" 
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                style={{ padding: '0.4rem 0.75rem', fontSize: '0.85rem', width: 'auto' }}
+                style={{ padding: '0.45rem 0.75rem', fontSize: '0.85rem', width: 'auto', backgroundColor: 'var(--bg-subtle)' }}
               >
                 <option value="todos">Todos os Status</option>
                 <option value="ativo">Disponíveis</option>
@@ -293,7 +288,7 @@ export default function AdminDashboard({
           </div>
         </div>
 
-        {/* Batch Actions Bar (Only visible when items are selected) */}
+        {/* Batch Actions Bar */}
         {selectedIds.length > 0 && (
           <div style={{
             backgroundColor: 'var(--primary-dark)',
@@ -343,10 +338,10 @@ export default function AdminDashboard({
         )}
 
         {/* Main Listings Table */}
-        <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', overflowX: 'auto', boxShadow: 'var(--shadow-sm)' }}>
+        <div style={{ backgroundColor: '#FFFFFF', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-subtle)', overflowX: 'auto', boxShadow: 'var(--shadow-xs)' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.875rem' }}>
             <thead>
-              <tr style={{ backgroundColor: '#F1F5F9', color: 'var(--primary-dark)', borderBottom: '1px solid var(--border-subtle)' }}>
+              <tr style={{ backgroundColor: 'var(--bg-subtle)', color: 'var(--primary-dark)', borderBottom: '1px solid var(--border-subtle)' }}>
                 <th style={{ padding: '0.85rem 1rem', width: '40px', textAlign: 'center' }}>
                   <input 
                     type="checkbox" 
@@ -362,21 +357,26 @@ export default function AdminDashboard({
                 <th style={{ padding: '0.85rem 1rem' }}>Valor</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Status</th>
                 <th style={{ padding: '0.85rem 1rem' }}>Destaque</th>
-                <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Ações de Gestão</th>
+                <th style={{ padding: '0.85rem 1rem', textAlign: 'right' }}>Ações</th>
               </tr>
             </thead>
             <tbody>
               {filteredProperties.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '4rem 1rem', color: 'var(--text-muted)' }}>
-                    <Building size={40} style={{ color: '#CBD5E1', marginBottom: '0.75rem' }} />
-                    <div>Nenhum imóvel encontrado no painel com os filtros atuais.</div>
+                  <td colSpan={8} style={{ textAlign: 'center', padding: '4.5rem 1rem', color: 'var(--text-muted)' }}>
+                    <Building size={48} style={{ color: '#CBD5E1', marginBottom: '1rem' }} />
+                    <div style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary-dark)', marginBottom: '0.35rem' }}>Nenhum imóvel cadastrado no momento</div>
+                    <div style={{ fontSize: '0.875rem', marginBottom: '1.5rem' }}>Clique no botão abaixo para cadastrar seu primeiro imóvel com fotos e detalhes.</div>
+                    <button className="btn btn-red btn-sm" onClick={onOpenAddModal}>
+                      <PlusCircle size={16} /> Cadastrar Primeiro Imóvel
+                    </button>
                   </td>
                 </tr>
               ) : (
                 filteredProperties.map(prop => {
                   const isSelected = selectedIds.includes(prop.id);
                   const refCode = prop.code || prop.id;
+                  const coverImg = prop.imageUrl || (prop.images && prop.images[0]) || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=200&q=80';
 
                   return (
                     <tr 
@@ -400,9 +400,9 @@ export default function AdminDashboard({
                       {/* Cover Photo */}
                       <td style={{ padding: '0.85rem 1rem' }}>
                         <img 
-                          src={prop.imageUrl || (prop.images && prop.images[0])} 
+                          src={coverImg} 
                           alt={prop.title} 
-                          style={{ width: '56px', height: '56px', borderRadius: 'var(--radius-sm)', objectFit: 'cover' }}
+                          style={{ width: '56px', height: '56px', borderRadius: 'var(--radius-xs)', objectFit: 'cover' }}
                           onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=200&q=80'; }}
                         />
                       </td>
@@ -410,15 +410,15 @@ export default function AdminDashboard({
                       {/* Code & Title */}
                       <td style={{ padding: '0.85rem 1rem', maxWidth: '280px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-red)', backgroundColor: 'rgba(200, 29, 37, 0.08)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-red)', backgroundColor: 'var(--accent-red-subtle)', padding: '0.1rem 0.4rem', borderRadius: '4px' }}>
                             {refCode}
                           </span>
                         </div>
-                        <div style={{ fontWeight: 700, color: 'var(--primary-dark)', marginTop: '0.2rem', lineHeight: 1.25 }}>
+                        <div style={{ fontWeight: 700, color: 'var(--primary-dark)', marginTop: '0.25rem', lineHeight: 1.25 }}>
                           {prop.title}
                         </div>
                         <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                          {prop.neighborhood} • {prop.city || 'Itaiópolis - SC'}
+                          {prop.neighborhood ? `${prop.neighborhood} • ` : ''}{prop.city || 'Itaiópolis - SC'}
                         </div>
                       </td>
 
@@ -486,7 +486,7 @@ export default function AdminDashboard({
                           <button 
                             className="btn btn-navy btn-sm" 
                             onClick={() => onEditProperty(prop)} 
-                            title="Editar todas as informações do imóvel"
+                            title="Editar informações do imóvel"
                             style={{ padding: '0.35rem 0.65rem' }}
                           >
                             <Edit size={14} /> Editar
@@ -495,7 +495,7 @@ export default function AdminDashboard({
                           <button 
                             className="btn btn-outline btn-sm" 
                             onClick={() => onDuplicateProperty(prop)} 
-                            title="Duplicar anúncio como novo imóvel"
+                            title="Duplicar anúncio"
                             style={{ padding: '0.35rem 0.5rem' }}
                           >
                             <Copy size={14} />
@@ -531,6 +531,12 @@ export default function AdminDashboard({
         </div>
 
       </div>
+
+      <ChangePasswordModal 
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+        onUpdatePassword={onUpdatePassword}
+      />
     </section>
   );
 }

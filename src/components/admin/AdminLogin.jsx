@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Lock, User, KeyRound, ShieldAlert, Eye, EyeOff, LogIn, Clock, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin({ onLogin }) {
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState('andersonkunicki');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Rate Limiting & Brute-Force Lockout state
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutTime, setLockoutTime] = useState(0);
 
@@ -42,7 +41,7 @@ export default function AdminLogin({ onLogin }) {
         setFailedAttempts(nextAttempts);
 
         if (nextAttempts >= 5) {
-          setLockoutTime(60); // Lockout for 60 seconds
+          setLockoutTime(60);
           setErrorMsg('Múltiplas tentativas incorretas. Acesso temporariamente bloqueado por segurança (60s).');
         } else {
           setErrorMsg(`Usuário ou senha incorretos. Tentativa ${nextAttempts} de 5.`);
@@ -62,14 +61,14 @@ export default function AdminLogin({ onLogin }) {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '3rem 1rem',
-      backgroundColor: '#EEF2F6'
+      backgroundColor: 'var(--bg-main)'
     }}>
       <div style={{
         width: '100%',
         maxWidth: '440px',
-        backgroundColor: 'var(--bg-card)',
-        borderRadius: '16px',
-        boxShadow: '0 20px 40px rgba(15, 23, 42, 0.12)',
+        backgroundColor: '#FFFFFF',
+        borderRadius: 'var(--radius-lg)',
+        boxShadow: 'var(--shadow-lg)',
         border: '1px solid var(--border-subtle)',
         overflow: 'hidden'
       }}>
@@ -83,8 +82,8 @@ export default function AdminLogin({ onLogin }) {
           position: 'relative'
         }}>
           <div style={{
-            width: '64px',
-            height: '64px',
+            width: '60px',
+            height: '60px',
             margin: '0 auto 1rem',
             borderRadius: '50%',
             backgroundColor: 'rgba(200, 29, 37, 0.15)',
@@ -94,7 +93,7 @@ export default function AdminLogin({ onLogin }) {
             justifyContent: 'center',
             color: 'var(--accent-red)'
           }}>
-            <Lock size={30} />
+            <Lock size={28} />
           </div>
 
           <span style={{
@@ -102,9 +101,9 @@ export default function AdminLogin({ onLogin }) {
             fontWeight: 800,
             color: 'var(--gold-primary)',
             textTransform: 'uppercase',
-            letterSpacing: '0.1em'
+            letterSpacing: '0.08em'
           }}>
-            Acesso Restrito Seguro (SHA-256)
+            Acesso Restrito Seguro
           </span>
 
           <h2 style={{
@@ -157,10 +156,10 @@ export default function AdminLogin({ onLogin }) {
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={{
               display: 'block',
-              fontSize: '0.85rem',
+              fontSize: '0.825rem',
               fontWeight: 700,
               color: 'var(--primary-dark)',
-              marginBottom: '0.5rem'
+              marginBottom: '0.4rem'
             }}>
               Usuário / Login
             </label>
@@ -184,10 +183,9 @@ export default function AdminLogin({ onLogin }) {
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={lockoutTime > 0}
-                autoFocus
                 style={{
                   paddingLeft: '2.75rem',
-                  fontSize: '0.95rem'
+                  backgroundColor: 'var(--bg-subtle)'
                 }}
               />
             </div>
@@ -197,10 +195,10 @@ export default function AdminLogin({ onLogin }) {
           <div style={{ marginBottom: '1.75rem' }}>
             <label style={{
               display: 'block',
-              fontSize: '0.85rem',
+              fontSize: '0.825rem',
               fontWeight: 700,
               color: 'var(--primary-dark)',
-              marginBottom: '0.5rem'
+              marginBottom: '0.4rem'
             }}>
               Senha de Acesso
             </label>
@@ -219,15 +217,16 @@ export default function AdminLogin({ onLogin }) {
               <input
                 type={showPassword ? 'text' : 'password'}
                 className="input-field"
-                placeholder="Sua senha"
+                placeholder="Digite sua senha de acesso"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={lockoutTime > 0}
+                autoFocus
                 style={{
                   paddingLeft: '2.75rem',
                   paddingRight: '2.75rem',
-                  fontSize: '0.95rem'
+                  backgroundColor: 'var(--bg-subtle)'
                 }}
               />
               <button
@@ -264,8 +263,6 @@ export default function AdminLogin({ onLogin }) {
               fontSize: '1rem',
               fontWeight: 700,
               justifyContent: 'center',
-              borderRadius: 'var(--radius-sm)',
-              boxShadow: 'var(--shadow-md)',
               opacity: lockoutTime > 0 ? 0.6 : 1
             }}
           >
@@ -275,7 +272,7 @@ export default function AdminLogin({ onLogin }) {
               <span>Bloqueado ({lockoutTime}s)</span>
             ) : (
               <>
-                <LogIn size={20} />
+                <LogIn size={18} />
                 <span>Entrar no Painel</span>
               </>
             )}
@@ -286,7 +283,7 @@ export default function AdminLogin({ onLogin }) {
             paddingTop: '1rem',
             borderTop: '1px solid var(--border-subtle)',
             textAlign: 'center',
-            fontSize: '0.8rem',
+            fontSize: '0.78rem',
             color: 'var(--text-muted)',
             display: 'flex',
             alignItems: 'center',

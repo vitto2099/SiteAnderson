@@ -1,127 +1,150 @@
-# 🏢 Website Imobiliário - Anderson Kunicki Corretor Imobiliário
+# Anderson Kunicki — Corretor Imobiliário (CRECI-SC 60173 F)
 
-Aplicação web moderna, responsiva e de alto padrão desenvolvida em **React 18** com **Vite**, projetada sob medida para a imobiliária **Anderson Kunicki - Corretor Imobiliário** (CRECI-SC 60173 F) em Itaiópolis - SC.
-
-![Visual Identity](510202027_30090792963900878_3408129173499351369_n.jpg)
+Aplicação web moderna, responsiva e de alto padrão desenvolvida em **React 18** com **Vite 5**, arquitetada sob o padrão **Clean Architecture / Modular Components**, projetada para a imobiliária **Anderson Kunicki - Corretor Imobiliário** em Itaiópolis - SC.
 
 ---
 
-## 🎨 Identidade Visual & Design
+## Identidade Visual e Design System
 
-O design system do projeto foi construído respeitando as cores e a marca oficial do corretor:
-- **Azul Marinho Imperial** (`#07172C` / `#0B2545`): Transmite solidez, segurança e credibilidade imobiliária.
-- **Vermelho Imobiliário** (`#C81D25`): Destaca botões de ação (CTA), badges de venda e marcações importantes.
-- **Dourado Champagne** (`#D4AF37`): Identifica imóveis marcados em destaque.
-- **Tipografia**: Google Fonts (*Outfit* para títulos nobres e *Inter* para textos técnicos).
+O design do projeto utiliza um estilo corporativo, clean e refinado:
+- **Azul Marinho Imperial** (`#071527` / `#0B2240`): Solidez, segurança e credibilidade imobiliária.
+- **Vermelho Carmim Imobiliário** (`#C81D25`): Destaques, chamadas para ação (CTA) e elementos visuais nobres.
+- **Dourado Champagne** (`#D4AF37`): Identificação de imóveis em destaque na vitrine.
+- **Tipografia Nobre**: Google Fonts (*Outfit* para títulos e *Inter* para dados e leitura técnica).
 
 ---
 
-## ✨ Funcionalidades Principais
+## Funcionalidades
 
-1. **🏠 Catálogo de Imóveis Reativo**:
-   - Busca em tempo real por palavras-chave (bairro, rua, características).
-   - Filtros por finalidade (*Venda* ou *Aluguel*), tipo de imóvel (*Casa, Terreno, Sítio, Apartamento, Comercial*), quantidade mínima de dormitórios e preço máximo.
-   - Cards com visualização de m², banheiros, vagas de garagem e preço formatado em Reais (R$).
+1. **Catálogo Reativo de Imóveis**:
+   - Busca em tempo real por código, título, bairro e rua.
+   - Filtros instantâneos por finalidade (*Venda* ou *Aluguel*), tipo (*Casa, Terreno, Sítio, Apartamento, Comercial*), dormitórios e preço máximo.
+   - Cards com visualização de m², quartos, suítes, banheiros, vagas e preço formatado em Reais (R$).
 
-2. **🔍 Modal de Detalhes Completo**:
-   - Galeria de imagens com seletores miniatura.
-   - Lista completa de diferenciais e comodidades (Suíte, Churrasqueira, Portão Eletrônico, etc.).
+2. **Modal de Detalhes Completo**:
+   - Galeria com seletor de miniaturas.
+   - Exibição de Tour Virtual em vídeo embutido (YouTube / Vimeo).
+   - Dados detalhados de área construída, terreno, suítes, IPTU e condomínio.
    - Botão direto para o WhatsApp preenchendo o imóvel e referência exata de interesse.
 
-3. **🧮 Simulador de Financiamento Imobiliário**:
-   - Cálculo automático da estimativa da parcela mensal (Sistema PRICE).
-   - Ajuste dinâmico do valor do imóvel, porcentagem de entrada, taxa de juros anual e prazo em anos.
-   - Envio da simulação realizada direto para o WhatsApp do corretor.
+3. **Simulador de Financiamento Imobiliário**:
+   - Estimativa de parcelas mensais pelo Sistema PRICE.
+   - Sliders interativos de entrada, taxa de juros e prazo em anos.
+   - Barra de composição visual da compra (Entrada vs Financiamento).
+   - Botão de envio da simulação personalizada direto para o WhatsApp do corretor.
 
-4. **🛡️ Painel de Gestão de Anúncios (Admin)**:
-   - Dashboard com contadores em tempo real (Total de Imóveis, Em Destaque, À Venda, Para Alugar).
-   - **Criar Novo Anúncio**: Formulário modal com campos completos e preview.
-   - **Editar & Excluir**: Atualização imediata dos dados com persistência em `LocalStorage`.
-   - **Alternar Destaque**: Marcar imóveis especiais para a vitrine principal.
-   - **Restaurar Padrões**: Botão de restauração rápida para dados de exemplo da região de Itaiópolis.
+4. **Painel de Gestão de Anúncios (Admin)**:
+   - Autenticação com **Firebase Auth** ou criptografia **SHA-256**, rate-limiting e auto-logout por inatividade (30 min).
+   - **Módulo de Troca de Senha** integrado diretamente no painel.
+   - Métricas de carteira em tempo real (Total de Imóveis, Em Destaque, Venda/Aluguel, VGV Total).
+   - **Upload de fotos locais** (Base64) e links externos com reordenação e definição de capa.
+   - **Gerenciamento dinâmico de tags e comodidades**.
+   - Ações em lote, duplicação rápida e exportação/importação de backups em formato JSON.
 
-5. **💬 Widget Flutuante do WhatsApp**:
-   - Popover interativo no canto inferior direito para contato direto e captação de leads em qualquer página.
+5. **Persistência em Nuvem (Firebase Firestore)**:
+   - Sincronização em tempo real entre todos os dispositivos (celular, tablet, computador do escritório).
+   - Modo de contingência e cache local resiliente a falhas de conexão.
 
-6. **📍 Localização & Seção Institucional**:
-   - Informações completas sobre o corretor Anderson Kunicki (CRECI-SC 60173 F).
-   - Integração com Google Maps interativo da sede na **Rua Francisco Mielzkovski, 173 - Itaiópolis - SC**.
-   - Links diretos para E-mail e Facebook oficial.
+6. **Widget Flutuante do WhatsApp**:
+   - Popover interativo no canto inferior direito para contato direto e captação de leads com mensagens pré-configuradas.
+
+7. **Conformidade com a LGPD**:
+   - Página dedicada de Política de Privacidade e Proteção de Dados com canais de encarregado.
+
+8. **Seção Institucional e Redes Sociais**:
+   - Informações institucionais do corretor Anderson Kunicki (CRECI-SC 60173 F).
+   - Links oficiais para WhatsApp, Instagram (`@kunickianderson`) e Facebook.
+   - Google Maps interativo da sede na **Rua Francisco Mielzkovski, 173 - Itaiópolis - SC**.
 
 ---
 
-## 🛠️ Tecnologias Utilizadas
-
-- **React 18** (Componentização reativa e estado local)
-- **Vite 5** (Bundler ultrarrápido para desenvolvimento e build)
-- **Lucide React** (Ícones vetoriais modernos)
-- **Vanilla CSS3** (Design system customizado sem dependência de UI kit genérico)
-- **LocalStorage API** (Persistência dos anúncios cadastrados)
-
----
-
-## 📁 Estrutura de Arquivos
+## Estrutura de Arquivos Modular
 
 ```text
-SiteAnderson/
-├── 510202027_30090792963900878_3408129173499351369_n.jpg  # Logo Oficial
-├── index.html                                             # Entry HTML
-├── package.json                                           # Dependências React & Scripts
-├── vite.config.js                                         # Configuração do Vite
-├── README.md                                              # Documentação
-└── src/
-    ├── main.jsx                                           # Ponto de entrada React
-    ├── App.jsx                                            # Componente Raiz
-    ├── index.css                                          # Design System & Estilos
-    ├── data/
-    │   └── properties.js                                  # Imóveis de Exemplo Iniciais
-    └── components/
-        ├── Header.jsx                                     # Cabeçalho & Navegação
-        ├── Hero.jsx                                       # Banner de Abertura & Busca Rápida
-        ├── PropertyCard.jsx                               # Card do Imóvel
-        ├── PropertyFilters.jsx                            # Filtros e Abas de Busca
-        ├── PropertyModal.jsx                              # Modal de Detalhes & Galeria
-        ├── FinancingCalculator.jsx                        # Calculadora de Financiamento
-        ├── AdminDashboard.jsx                             # Painel de Controle de Anúncios
-        ├── PropertyFormModal.jsx                          # Modal de Criação / Edição
-        ├── AboutContact.jsx                               # Sobre, Contato & Google Maps
-        ├── WhatsAppWidget.jsx                             # Widget Flutuante WhatsApp
-        └── Footer.jsx                                     # Rodapé Institucional
+andersonkunicki/
+├── public/
+│   ├── .htaccess                     # Regras de segurança e cache Apache (Hostinger)
+│   ├── favicon.svg                   # Favicon vetorial oficial
+│   ├── manifest.json                 # Manifesto PWA
+│   ├── robots.txt                    # Regras para motores de busca
+│   ├── sitemap.xml                   # Mapa XML para indexação de motores de busca
+│   └── anderson-kunicki.jpg          # Foto institucional do corretor
+├── src/
+│   ├── components/
+│   │   ├── admin/                    # Área Administrativa
+│   │   │   ├── AdminDashboard.jsx    # Painel de gestão e métricas
+│   │   │   ├── AdminLogin.jsx        # Tela de login
+│   │   │   ├── ChangePasswordModal.jsx # Modal de alteração de senha
+│   │   │   └── PropertyFormModal.jsx # Formulário de cadastro/edição
+│   │   ├── common/                   # Componentes Compartilhados
+│   │   │   └── Toast.jsx             # Notificações flutuantes animadas
+│   │   ├── layout/                   # Estrutura e Navegação
+│   │   │   ├── Header.jsx            # Cabeçalho com redes e menu responsivo
+│   │   │   ├── Footer.jsx            # Rodapé institucional
+│   │   │   └── WhatsAppWidget.jsx    # Widget flutuante de atendimento
+│   │   ├── property/                 # Domínio de Imóveis
+│   │   │   ├── PropertyCard.jsx      # Card minimalista de imóvel
+│   │   │   ├── PropertyFilters.jsx   # Filtros e ordenação
+│   │   │   └── PropertyModal.jsx     # Modal de detalhes, galeria e vídeo
+│   │   └── sections/                 # Seções de Conteúdo
+│   │       ├── AboutContact.jsx      # Sobre, contato e mapa
+│   │       ├── FinancingCalculator.jsx # Calculadora PRICE
+│   │       ├── Hero.jsx              # Banner de busca rápida
+│   │       └── PrivacyPage.jsx       # Política de Privacidade (LGPD)
+│   ├── config/
+│   │   └── site.config.js            # Configurações de contato, redes e WhatsApp
+│   ├── data/
+│   │   └── properties.js             # Base inicial de imóveis
+│   ├── hooks/                        # Custom React Hooks
+│   │   ├── useAuth.js                # Autenticação e sessão (Firebase / Local)
+│   │   ├── useProperties.js          # Firestore Real-Time CRUD, filtros e backups
+│   │   └── useToast.js               # Notificações temporizadas
+│   ├── lib/
+│   │   └── firebase.js               # Inicialização do Firebase Firestore & Auth
+│   ├── utils/                        # Funções Utilitárias
+│   │   ├── formatters.js             # Formatação de moeda, números e telefones
+│   │   ├── security.js               # Criptografia SHA-256
+│   │   └── video.js                  # Embed de YouTube/Vimeo
+│   ├── App.jsx                       # Componente Raiz Desacoplado
+│   ├── index.css                     # Design System Ultra-Clean
+│   └── main.jsx                      # Ponto de entrada React
+├── .env.example                      # Modelo de variáveis de ambiente
+├── HOSTINGER_DEPLOY.md               # Guia passo a passo de deploy na Hostinger
+├── index.html                        # HTML principal com meta tags SEO
+├── package.json                      # Dependências e scripts
+└── vite.config.js                    # Configurações do Vite
 ```
 
 ---
 
-## 🚀 Como Executar o Projeto Localmente
+## Como Executar Localmente
 
-### Pré-requisitos
-Possuir o **Node.js** (versão 18 ou superior) instalado em sua máquina.
+### 1. Instalar as dependências:
+```bash
+npm install
+```
 
-### Passo a Passo
+### 2. Configurar o Firebase (Opcional para testes locais):
+Copie o arquivo `.env.example` para `.env.local` e insira suas credenciais do Firebase Console.
 
-1. **Instalar as dependências**:
-   ```bash
-   npm install
-   ```
+### 3. Iniciar o servidor de desenvolvimento:
+```bash
+npm run dev
+```
 
-2. **Iniciar o servidor de desenvolvimento**:
-   ```bash
-   npm run dev
-   ```
-
-3. **Acessar a aplicação**:
-   Abra o navegador no endereço indicado (por padrão `http://localhost:3000`).
-
-4. **Gerar Build de Produção**:
-   ```bash
-   npm run build
-   ```
+### 4. Gerar build de produção:
+```bash
+npm run build
+```
 
 ---
 
-## 📞 Informações de Contato do Corretor
+## Deploy na Hostinger
 
-- **Corretor**: Anderson Kunicki
-- **CRECI**: CRECI-SC 60173 F
-- **Endereço**: Rua Francisco Mielzkovski, 173 - Itaiópolis - SC, 89340-000, Brasil
-- **E-mail**: [andersonkunicki@gmail.com](mailto:andersonkunicki@gmail.com)
-- **Facebook**: [facebook.com/anderson.kunicki.9](https://www.facebook.com/anderson.kunicki.9)
+Consulte o guia completo e detalhado em [HOSTINGER_DEPLOY.md](./HOSTINGER_DEPLOY.md).
+
+---
+
+## Acesso Administrativo
+
+As credenciais de primeiro acesso são configuradas no momento da entrega do projeto. A senha pode ser alterada a qualquer momento através do botão **"Alterar Senha"** presente no cabeçalho do Painel Admin.

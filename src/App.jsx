@@ -1,332 +1,102 @@
 import React, { useState, useEffect } from 'react';
-import Header from './components/Header';
-import Hero from './components/Hero';
-import PropertyCard from './components/PropertyCard';
-import PropertyFilters from './components/PropertyFilters';
-import PropertyModal from './components/PropertyModal';
-import FinancingCalculator from './components/FinancingCalculator';
-import AdminDashboard from './components/AdminDashboard';
-import AdminLogin from './components/AdminLogin';
-import PropertyFormModal from './components/PropertyFormModal';
-import AboutContact from './components/AboutContact';
-import WhatsAppWidget from './components/WhatsAppWidget';
-import Footer from './components/Footer';
-import { INITIAL_PROPERTIES } from './data/properties';
-import { Building, Sparkles } from 'lucide-react';
+import Header from './components/layout/Header';
+import Footer from './components/layout/Footer';
+import WhatsAppWidget from './components/layout/WhatsAppWidget';
+import Toast from './components/common/Toast';
 
-const STORAGE_KEY = 'anderson_kunicki_react_properties_v1';
-const AUTH_STORAGE_KEY = 'anderson_kunicki_auth_user_v1';
+import Hero from './components/sections/Hero';
+import FinancingCalculator from './components/sections/FinancingCalculator';
+import AboutContact from './components/sections/AboutContact';
+import PrivacyPage from './components/sections/PrivacyPage';
 
-// Helper to resolve hash to tab
+import PropertyCard from './components/property/PropertyCard';
+import PropertyFilters from './components/property/PropertyFilters';
+import PropertyModal from './components/property/PropertyModal';
+
+import AdminDashboard from './components/admin/AdminDashboard';
+import AdminLogin from './components/admin/AdminLogin';
+import PropertyFormModal from './components/admin/PropertyFormModal';
+
+import { useToast } from './hooks/useToast';
+import { useAuth } from './hooks/useAuth';
+import { useProperties } from './hooks/useProperties';
+
+import { Building, PlusCircle } from 'lucide-react';
+import WhatsAppIcon from './components/common/WhatsAppIcon';
+import { getWhatsAppUrl } from './config';
+
 function getTabFromHash(hash) {
   const cleanHash = hash.replace('#', '').toLowerCase();
-  // Por segurança, ao recarregar a página o usuário não permanece na aba admin automaticamente
   if (cleanHash === 'simulador' || cleanHash === 'financiamento') return 'financing';
   if (cleanHash === 'sobre' || cleanHash === 'contato') return 'about';
+  if (cleanHash === 'privacidade' || cleanHash === 'lgpd' || cleanHash === 'termos') return 'privacy';
+  if (cleanHash === 'admin') return 'admin';
   return 'catalog';
 }
 
 export default function App() {
-  const [properties, setProperties] = useState([]);
   const [currentTab, setCurrentTabState] = useState(() => getTabFromHash(window.location.hash));
   const [selectedPropertyModal, setSelectedPropertyModal] = useState(null);
-  
-  // Authentication State (100% em memória: ao recarregar a página F5, a sessão encerra por segurança)
-  const [currentUser, setCurrentUser] = useState(null);
-
-  // Garantir limpeza de qualquer sessão residual ao carregar a página
-  useEffect(() => {
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-  }, []);
-
-  // Helper for SHA-256 Password Hashing via WebCrypto API
-  const hashPassword = async (plainText) => {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(plainText);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const handleLogin = async (usernameInput, passwordInput) => {
-    const hashedInput = await hashPassword(passwordInput);
-
-    // Pre-computed SHA-256 Hashes:
-    // fiorino2026 -> 0a2fb47fa6a7f7d142ce049386d34b46294a282f6e9196b0bd59048a1c97042a
-    // admin -> 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
-    const validCredentials = [
-      { user: 'andersonkunicki', passHash: '0a2fb47fa6a7f7d142ce049386d34b46294a282f6e9196b0bd59048a1c97042a' },
-      { user: 'admin', passHash: '8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918' }
-    ];
-
-    const found = validCredentials.find(
-      c => c.user.toLowerCase() === usernameInput.toLowerCase() && c.passHash === hashedInput
-    );
-
-    if (found) {
-      setCurrentUser(found.user);
-      showToast(`Bem-vindo, ${found.user}! Sessão iniciada.`);
-      return true;
-    }
-    return false;
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-    sessionStorage.removeItem(AUTH_STORAGE_KEY);
-    localStorage.removeItem(AUTH_STORAGE_KEY);
-    setCurrentTab('catalog');
-    showToast('Sessão encerrada com sucesso.');
-  };
-
-  // Inactivity Auto-Logout Security (30 Minutes Timeout)
-  useEffect(() => {
-    if (!currentUser) return;
-
-    let timeoutId;
-    const INACTIVITY_LIMIT = 30 * 60 * 1000; // 30 minutes
-
-    const resetTimer = () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        handleLogout();
-        alert('Sua sessão foi encerrada automaticamente por 30 minutos de inatividade para a sua segurança.');
-      }, INACTIVITY_LIMIT);
-    };
-
-    const events = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
-    events.forEach(ev => window.addEventListener(ev, resetTimer));
-    resetTimer();
-
-    return () => {
-      clearTimeout(timeoutId);
-      events.forEach(ev => window.removeEventListener(ev, resetTimer));
-    };
-  }, [currentUser]);
-  
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
 
-  const [toastMessage, setToastMessage] = useState('');
+  // Custom Hooks
+  const { toastMessage, showToast } = useToast();
+  const { currentUser, login, logout, updateUserPassword } = useAuth(showToast);
+  const {
+    properties,
+    featuredProperties,
+    filteredProperties,
+    filters,
+    setFilters,
+    resetFilters,
+    saveProperty,
+    deleteProperty,
+    toggleFeatured,
+    duplicateProperty,
+    toggleStatus,
+    bulkDelete,
+    bulkStatusChange,
+    exportBackupJSON,
+    importBackupJSON
+  } = useProperties(showToast);
 
-  const [filters, setFilters] = useState({
-    keyword: '',
-    purpose: 'todos',
-    type: 'todos',
-    bedrooms: 'todos',
-    maxPrice: 'Infinity',
-    sortBy: 'recente'
-  });
-
-  // Sync tab with URL Hash
+  // Sync tab with URL Hash & Scroll to Top
   const setCurrentTab = (tabName) => {
     setCurrentTabState(tabName);
     const hashMap = {
       catalog: 'imoveis',
       financing: 'simulador',
       about: 'sobre',
+      privacy: 'privacidade',
       admin: 'admin'
     };
     window.location.hash = hashMap[tabName] || 'imoveis';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
     const handleHashChange = () => {
       const tab = getTabFromHash(window.location.hash);
       setCurrentTabState(tab);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  // Load properties on mount
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        setProperties(JSON.parse(stored));
-      } catch (e) {
-        setProperties(INITIAL_PROPERTIES);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_PROPERTIES));
-      }
-    } else {
-      setProperties(INITIAL_PROPERTIES);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(INITIAL_PROPERTIES));
-    }
-  }, []);
-
-  const saveProperties = (updatedProps) => {
-    setProperties(updatedProps);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProps));
-  };
-
-  const showToast = (msg) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage('');
-    }, 3500);
-  };
-
-  // Property CRUD handlers
-  const handleSaveProperty = (formData, editId) => {
-    if (editId) {
-      const updated = properties.map(p => p.id === editId ? { ...p, ...formData } : p);
-      saveProperties(updated);
-      showToast('Anúncio atualizado com sucesso!');
-    } else {
-      const newProp = {
-        id: `prop-${Date.now()}`,
-        ...formData,
-        status: 'ativo',
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      saveProperties([newProp, ...properties]);
-      showToast('Novo anúncio cadastrado com sucesso!');
-    }
+  const handleSavePropertyForm = (formData, editId) => {
+    saveProperty(formData, editId);
     setIsFormModalOpen(false);
     setEditingProperty(null);
   };
 
-  const handleDeleteProperty = (id) => {
-    if (window.confirm('Tem certeza de que deseja excluir este anúncio permanentemente?')) {
-      const updated = properties.filter(p => p.id !== id);
-      saveProperties(updated);
-      showToast('Anúncio excluído com sucesso.');
-    }
-  };
-
-  const handleToggleFeatured = (id) => {
-    const updated = properties.map(p => p.id === id ? { ...p, featured: !p.featured } : p);
-    saveProperties(updated);
-    const target = updated.find(p => p.id === id);
-    showToast(target.featured ? 'Imóvel destacado!' : 'Destaque removido.');
-  };
-
-  const handleDuplicateProperty = (prop) => {
-    const duplicated = {
-      ...prop,
-      id: `prop-${Date.now()}`,
-      code: `${prop.code || prop.id}-COPIA`,
-      title: `${prop.title} (Cópia)`,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    saveProperties([duplicated, ...properties]);
-    showToast(`Imóvel duplicado com sucesso! Código: ${duplicated.code}`);
-  };
-
-  const handleToggleStatus = (id, newStatus) => {
-    const updated = properties.map(p => p.id === id ? { ...p, status: newStatus } : p);
-    saveProperties(updated);
-    showToast(`Status atualizado para ${newStatus.toUpperCase()}`);
-  };
-
-  const handleBulkDelete = (ids) => {
-    if (window.confirm(`Tem certeza de que deseja excluir ${ids.length} imóvel(is) selecionado(s)?`)) {
-      const updated = properties.filter(p => !ids.includes(p.id));
-      saveProperties(updated);
-      showToast(`${ids.length} imóvel(is) excluído(s) em lote.`);
-    }
-  };
-
-  const handleBulkStatusChange = (ids, newStatus) => {
-    const updated = properties.map(p => ids.includes(p.id) ? { ...p, status: newStatus } : p);
-    saveProperties(updated);
-    showToast(`Status de ${ids.length} imóvel(is) alterado para ${newStatus.toUpperCase()}`);
-  };
-
-  const handleExportJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(properties, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `backup_imoveis_anderson_kunicki_${new Date().toISOString().split('T')[0]}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    showToast('Backup JSON exportado com sucesso!');
-  };
-
-  const handleImportJSON = (file) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const importedData = JSON.parse(event.target.result);
-        if (Array.isArray(importedData)) {
-          saveProperties(importedData);
-          showToast(`${importedData.length} imóvel(is) importado(s) com sucesso!`);
-        } else {
-          alert('Arquivo JSON inválido. Certifique-se de que é uma lista de imóveis.');
-        }
-      } catch (err) {
-        alert('Erro ao ler o arquivo JSON: ' + err.message);
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleResetDefaults = () => {
-    if (window.confirm('Deseja restaurar os imóveis de exemplo originais?')) {
-      saveProperties(INITIAL_PROPERTIES);
-      showToast('Lista de imóveis restaurada.');
-    }
-  };
-
-  // Filter & Sort Logic for Public Catalog (Shows only ATIVO properties)
-  const activeProperties = properties.filter(prop => prop.status === 'ativo');
-  const featuredProperties = activeProperties.filter(prop => prop.featured);
-
-  const filteredProperties = activeProperties.filter(prop => {
-    if (filters.purpose !== 'todos' && prop.purpose !== filters.purpose) return false;
-    if (filters.type !== 'todos' && prop.type !== filters.type) return false;
-    if (filters.bedrooms !== 'todos') {
-      const minBeds = parseInt(filters.bedrooms, 10);
-      if (prop.bedrooms < minBeds) return false;
-    }
-    if (filters.maxPrice !== 'Infinity') {
-      const maxP = parseFloat(filters.maxPrice);
-      if (prop.price > maxP) return false;
-    }
-    if (filters.keyword) {
-      const kw = filters.keyword.toLowerCase();
-      const mTitle = prop.title.toLowerCase().includes(kw);
-      const mAddress = prop.address.toLowerCase().includes(kw);
-      const mNeigh = prop.neighborhood.toLowerCase().includes(kw);
-      if (!mTitle && !mAddress && !mNeigh) return false;
-    }
-    return true;
-  }).sort((a, b) => {
-    if (filters.sortBy === 'preco-asc') return a.price - b.price;
-    if (filters.sortBy === 'preco-desc') return b.price - a.price;
-    // Default: recente (using createdAt date string or id)
-    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-  });
-
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Toast Notification Banner */}
-      {toastMessage && (
-        <div style={{
-          position: 'fixed',
-          bottom: '2rem',
-          left: '2rem',
-          zIndex: 2000,
-          backgroundColor: 'var(--primary-dark)',
-          color: '#FFFFFF',
-          padding: '0.85rem 1.5rem',
-          borderRadius: 'var(--radius-md)',
-          boxShadow: 'var(--shadow-lg)',
-          borderLeft: '4px solid var(--accent-red)',
-          fontWeight: 600,
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.75rem'
-        }}>
-          <Sparkles size={18} style={{ color: 'var(--gold-primary)' }} />
-          <span>{toastMessage}</span>
-        </div>
-      )}
+      {/* Toast Notification */}
+      <Toast message={toastMessage} />
 
       {/* Main Header */}
       <Header 
@@ -334,10 +104,9 @@ export default function App() {
         setCurrentTab={setCurrentTab} 
         onOpenAdminModal={() => { setEditingProperty(null); setIsFormModalOpen(true); }} 
         currentUser={currentUser}
-        onLogout={handleLogout}
       />
 
-      {/* Dynamic Tab Views */}
+      {/* Dynamic Views */}
       <main style={{ flex: 1 }}>
         {currentTab === 'catalog' && (
           <>
@@ -350,19 +119,17 @@ export default function App() {
               }} 
             />
 
-            {/* Featured Properties Banner */}
+            {/* Featured Properties Section */}
             {featuredProperties.length > 0 && (
-              <section style={{ padding: '3.5rem 0 1rem', backgroundColor: '#FFFFFF', borderBottom: '1px solid var(--border-subtle)' }}>
+              <section style={{ padding: '3.5rem 0 2rem', backgroundColor: '#FFFFFF', borderBottom: '1px solid var(--border-subtle)' }}>
                 <div className="container">
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                    <div>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--gold-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                        ★ Seleção Especial
-                      </span>
-                      <h2 style={{ fontSize: '1.75rem', margin: '0.2rem 0', color: 'var(--primary-dark)' }}>
-                        Imóveis em Destaque
-                      </h2>
-                    </div>
+                  <div style={{ marginBottom: '1.75rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--gold-primary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      Oportunidades em Destaque
+                    </span>
+                    <h2 style={{ fontSize: '1.85rem', margin: '0.2rem 0', color: 'var(--primary-dark)', fontWeight: 800 }}>
+                      Seleção de Imóveis
+                    </h2>
                   </div>
 
                   <div className="grid-properties">
@@ -378,15 +145,16 @@ export default function App() {
               </section>
             )}
 
-            <section id="catalog-section" style={{ padding: '4rem 0 5rem' }}>
+            {/* Catalog Section */}
+            <section id="catalog-section" style={{ padding: '4.5rem 0 5.5rem' }}>
               <div className="container">
-                <div style={{ textAlign: 'center', maxWidth: '650px', margin: '0 auto 2.5rem' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 2.5rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
                     Oportunidades em Itaiópolis - SC
                   </span>
-                  <h2 style={{ fontSize: '2.25rem', margin: '0.5rem 0' }}>Catálogo Completo de Imóveis</h2>
-                  <p style={{ color: 'var(--text-muted)' }}>
-                    Casas, terrenos, sítios e apartamentos rigorosamente selecionados com garantia imobiliária.
+                  <h2 style={{ fontSize: '2.25rem', margin: '0.4rem 0', fontWeight: 800 }}>Catálogo de Imóveis</h2>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
+                    Casas, terrenos, sítios e apartamentos com atendimento personalizado e segurança jurídica.
                   </p>
                 </div>
 
@@ -394,14 +162,43 @@ export default function App() {
                   filters={filters} 
                   setFilters={setFilters} 
                   totalCount={filteredProperties.length}
-                  onReset={() => setFilters({ keyword: '', purpose: 'todos', type: 'todos', bedrooms: 'todos', maxPrice: 'Infinity', sortBy: 'recente' })}
+                  onReset={resetFilters}
                 />
 
                 {filteredProperties.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '4rem 1rem', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px dashed var(--border-subtle)' }}>
-                    <Building size={48} style={{ color: 'var(--text-muted)', marginBottom: '1rem' }} />
-                    <h3 style={{ fontSize: '1.25rem' }}>Nenhum imóvel atende aos critérios da busca</h3>
-                    <p style={{ color: 'var(--text-muted)', marginTop: '0.35rem' }}>Tente ajustar os filtros acima para encontrar outras opções.</p>
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '4.5rem 2rem',
+                    backgroundColor: '#FFFFFF',
+                    borderRadius: 'var(--radius-lg)',
+                    border: '1px dashed var(--border-subtle)',
+                    boxShadow: 'var(--shadow-xs)',
+                    maxWidth: '700px',
+                    margin: '0 auto'
+                  }}>
+                    <Building size={56} style={{ color: '#CBD5E1', marginBottom: '1.25rem' }} />
+                    <h3 style={{ fontSize: '1.35rem', color: 'var(--primary-dark)', fontWeight: 800, marginBottom: '0.4rem' }}>
+                      {properties.length === 0 ? 'Nenhum imóvel cadastrado no momento' : 'Nenhum imóvel encontrado para os filtros selecionados'}
+                    </h3>
+                    <p style={{ color: 'var(--text-muted)', marginBottom: '1.75rem', fontSize: '0.95rem' }}>
+                      {properties.length === 0 
+                        ? 'Acesse o Painel Admin para cadastrar os anúncios imobiliários com fotos e especificações.' 
+                        : 'Tente limpar ou ajustar os filtros de busca para encontrar outras oportunidades.'}
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                      {properties.length === 0 ? (
+                        <button className="btn btn-red" onClick={() => setCurrentTab('admin')}>
+                          <PlusCircle size={17} /> Acessar Painel Admin
+                        </button>
+                      ) : (
+                        <button className="btn btn-outline" onClick={resetFilters}>
+                          Limpar Filtros de Busca
+                        </button>
+                      )}
+                      <a href={getWhatsAppUrl("Olá Anderson! Gostaria de consultar opções de imóveis disponíveis em Itaiópolis.")} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp">
+                        <WhatsAppIcon size={18} color="#FFFFFF" /> Consultar Corretor no WhatsApp
+                      </a>
+                    </div>
                   </div>
                 ) : (
                   <div className="grid-properties">
@@ -420,7 +217,7 @@ export default function App() {
         )}
 
         {currentTab === 'financing' && (
-          <section style={{ padding: '5rem 0', backgroundColor: 'var(--bg-main)' }}>
+          <section style={{ padding: '4.5rem 0 5.5rem', backgroundColor: 'var(--bg-main)' }}>
             <div className="container" style={{ maxWidth: '900px' }}>
               <FinancingCalculator />
             </div>
@@ -431,32 +228,36 @@ export default function App() {
           <AboutContact />
         )}
 
+        {currentTab === 'privacy' && (
+          <PrivacyPage onBackToCatalog={() => setCurrentTab('catalog')} />
+        )}
+
         {currentTab === 'admin' && (
           currentUser ? (
             <AdminDashboard 
               properties={properties}
               onOpenAddModal={() => { setEditingProperty(null); setIsFormModalOpen(true); }}
               onEditProperty={(prop) => { setEditingProperty(prop); setIsFormModalOpen(true); }}
-              onDeleteProperty={handleDeleteProperty}
-              onDuplicateProperty={handleDuplicateProperty}
-              onToggleFeatured={handleToggleFeatured}
-              onToggleStatus={handleToggleStatus}
-              onBulkDelete={handleBulkDelete}
-              onBulkStatusChange={handleBulkStatusChange}
-              onExportBackup={handleExportJSON}
-              onImportBackup={handleImportJSON}
-              onResetDefaults={handleResetDefaults}
+              onDeleteProperty={deleteProperty}
+              onDuplicateProperty={duplicateProperty}
+              onToggleFeatured={toggleFeatured}
+              onToggleStatus={toggleStatus}
+              onBulkDelete={bulkDelete}
+              onBulkStatusChange={bulkStatusChange}
+              onExportBackup={exportBackupJSON}
+              onImportBackup={importBackupJSON}
               onSelectProperty={(p) => setSelectedPropertyModal(p)}
               currentUser={currentUser}
-              onLogout={handleLogout}
+              onLogout={logout}
+              onUpdatePassword={updateUserPassword}
             />
           ) : (
-            <AdminLogin onLogin={handleLogin} />
+            <AdminLogin onLogin={login} />
           )
         )}
       </main>
 
-      {/* Property Details Lightbox Modal */}
+      {/* Modals */}
       {selectedPropertyModal && (
         <PropertyModal 
           property={selectedPropertyModal} 
@@ -464,18 +265,14 @@ export default function App() {
         />
       )}
 
-      {/* Create / Edit Form Modal */}
       <PropertyFormModal 
         isOpen={isFormModalOpen}
         onClose={() => { setIsFormModalOpen(false); setEditingProperty(null); }}
-        onSave={handleSaveProperty}
+        onSave={handleSavePropertyForm}
         editingProperty={editingProperty}
       />
 
-      {/* WhatsApp Floating Lead Widget */}
       <WhatsAppWidget />
-
-      {/* Footer */}
       <Footer setCurrentTab={setCurrentTab} />
 
     </div>

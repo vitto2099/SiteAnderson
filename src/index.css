@@ -1,45 +1,63 @@
 /* ==========================================================================
-   Anderson Kunicki Corretor Imobiliário - Modern React Design System
+   Anderson Kunicki Corretor Imobiliário - Luxury Modern Design System
    ========================================================================== */
 
 :root {
-  /* Core Luxury Color Tokens */
-  --primary-dark: #07172C;
-  --primary-navy: #0B2545;
-  --primary-blue: #134074;
-  --accent-red: #C81D25;
-  --accent-red-hover: #A3141B;
-  --accent-red-subtle: rgba(200, 29, 37, 0.08);
-  --gold-primary: #D4AF37;
-  --gold-subtle: rgba(212, 175, 55, 0.15);
+  /* Core Luxury Palette */
+  --primary-dark: #071527;
+  --primary-navy: #0B2240;
+  --primary-blue: #123B6B;
+  --primary-light: #EEF5FC;
   
-  --bg-main: #F4F6F9;
+  --accent-red: #C81D25;
+  --accent-red-hover: #A8141B;
+  --accent-red-subtle: rgba(200, 29, 37, 0.08);
+  --accent-red-glow: rgba(200, 29, 37, 0.35);
+  
+  --gold-primary: #D4AF37;
+  --gold-light: #FBF4DC;
+  --gold-gradient: linear-gradient(135deg, #D4AF37 0%, #F3E0A3 50%, #B89225 100%);
+  --gold-subtle: rgba(212, 175, 55, 0.12);
+  --gold-glow: rgba(212, 175, 55, 0.3);
+  
+  /* Neutros Ultra-Clean */
+  --bg-main: #F8FAFC;
   --bg-card: #FFFFFF;
-  --bg-glass: rgba(255, 255, 255, 0.92);
-  --bg-dark-glass: rgba(7, 23, 44, 0.85);
-
+  --bg-card-hover: #FAFCFE;
+  --bg-subtle: #F1F5F9;
+  
   --text-dark: #0F172A;
   --text-body: #334155;
   --text-muted: #64748B;
   --text-light: #94A3B8;
   --text-white: #FFFFFF;
-
+  
   --border-subtle: #E2E8F0;
-  --border-active: #134074;
-
-  --shadow-sm: 0 2px 4px rgba(7, 23, 44, 0.04);
-  --shadow-md: 0 8px 24px rgba(7, 23, 44, 0.08);
-  --shadow-lg: 0 16px 40px rgba(7, 23, 44, 0.12);
-  --shadow-glow: 0 0 25px rgba(200, 29, 37, 0.2);
-
-  --radius-sm: 8px;
-  --radius-md: 14px;
+  --border-medium: #CBD5E1;
+  --border-focus: #123B6B;
+  
+  /* Sombras Modernas e Suaves */
+  --shadow-xs: 0 1px 3px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 3px 10px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 10px 25px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 20px 40px -8px rgba(15, 23, 42, 0.14), 0 8px 16px -4px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 4px 20px rgba(15, 23, 42, 0.05);
+  --shadow-glow-red: 0 0 20px rgba(200, 29, 37, 0.25);
+  --shadow-glow-gold: 0 0 20px rgba(212, 175, 55, 0.25);
+  
+  /* Raios e Transições */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
   --radius-lg: 24px;
   --radius-full: 9999px;
-
-  --transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  --transition-fast: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-smooth: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Reset & Box Sizing */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -49,6 +67,7 @@
 html {
   scroll-behavior: smooth;
   font-size: 16px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -57,19 +76,22 @@ body {
   color: var(--text-dark);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: 'Outfit', sans-serif;
   color: var(--primary-dark);
-  font-weight: 700;
-  line-height: 1.25;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  transition: var(--transition);
 }
 
 button {
@@ -77,6 +99,7 @@ button {
   border: none;
   background: none;
   font-family: inherit;
+  outline: none;
 }
 
 input, select, textarea {
@@ -85,7 +108,7 @@ input, select, textarea {
 
 .container {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -93,168 +116,248 @@ input, select, textarea {
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #E2E8F0;
+  background: #F1F5F9;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--primary-blue);
+  background: #CBD5E1;
   border-radius: 4px;
 }
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-blue);
+}
 
-/* Custom Buttons */
+/* ==========================================================================
+   Animações & Efeitos Visuais
+   ========================================================================== */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.05); opacity: 1; filter: drop-shadow(0 0 12px var(--accent-red-glow)); }
+}
+
+@keyframes radarWave {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+@keyframes shimmerEffect {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-float {
+  animation: floatSlow 4s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Botões Modernos & Efeitos de Hover
+   ========================================================================== */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.4rem;
+  gap: 0.55rem;
+  padding: 0.75rem 1.45rem;
   font-size: 0.925rem;
-  font-weight: 600;
-  border-radius: var(--radius-md);
+  font-weight: 700;
+  border-radius: var(--radius-sm);
   transition: var(--transition);
   white-space: nowrap;
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn:active {
+  transform: scale(0.97);
 }
 
 .btn-red {
-  background-color: var(--accent-red);
+  background: linear-gradient(135deg, #C81D25 0%, #9E1219 100%);
   color: var(--text-white);
-  box-shadow: 0 4px 14px rgba(200, 29, 37, 0.3);
+  box-shadow: 0 4px 15px rgba(200, 29, 37, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .btn-red:hover {
-  background-color: var(--accent-red-hover);
+  background: linear-gradient(135deg, #DB242D 0%, #B3161E 100%);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 8px 24px rgba(200, 29, 37, 0.45);
+  color: #FFFFFF;
+}
+
+.btn-gold {
+  background: var(--gold-gradient);
+  color: #071527;
+  font-weight: 800;
+  box-shadow: 0 4px 14px var(--gold-glow);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(212, 175, 55, 0.45);
 }
 
 .btn-navy {
-  background-color: var(--primary-navy);
+  background: linear-gradient(135deg, #0B2240 0%, #071527 100%);
   color: var(--text-white);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-navy:hover {
-  background-color: var(--primary-blue);
+  background: linear-gradient(135deg, #123B6B 0%, #0B2240 100%);
   transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  color: #FFFFFF;
 }
 
 .btn-outline {
   border: 1.5px solid var(--border-subtle);
   color: var(--primary-navy);
-  background: var(--bg-card);
+  background: #FFFFFF;
 }
 
 .btn-outline:hover {
-  border-color: var(--primary-navy);
-  background: #EEF2F6;
+  border-color: var(--primary-blue);
+  background: var(--primary-light);
+  color: var(--primary-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-xs);
 }
 
 .btn-whatsapp {
-  background-color: #25D366;
+  background: linear-gradient(135deg, #25D366 0%, #179E4A 100%);
   color: var(--text-white);
-  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .btn-whatsapp:hover {
-  background-color: #20BA5A;
+  background: linear-gradient(135deg, #2CF075 0%, #1BB354 100%);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 8px 24px rgba(37, 211, 102, 0.45);
+  color: #FFFFFF;
 }
 
 .btn-sm {
-  padding: 0.45rem 0.9rem;
-  font-size: 0.85rem;
-  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.825rem;
+  border-radius: var(--radius-xs);
 }
 
-/* Badges */
+/* ==========================================================================
+   Badges Modernas
+   ========================================================================== */
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.725rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
+  backdrop-filter: blur(8px);
 }
 
 .badge-venda {
-  background: var(--accent-red);
-  color: var(--text-white);
+  background: #FEF2F2;
+  color: #B91C1C;
+  border: 1px solid #FECACA;
 }
 
 .badge-aluguel {
-  background: #2563EB;
-  color: var(--text-white);
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
 }
 
 .badge-featured {
-  background: var(--gold-primary);
-  color: var(--primary-dark);
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
 }
 
 .badge-sold {
-  background: #64748B;
-  color: var(--text-white);
+  background: #F1F5F9;
+  color: #64748B;
+  border: 1px solid #E2E8F0;
 }
 
-/* Modal Overlay & Animations */
+/* ==========================================================================
+   Modais & Overlays Glassmorphism
+   ========================================================================== */
 .modal-backdrop {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(7, 23, 44, 0.75);
-  backdrop-filter: blur(6px);
-  z-index: 1000;
+  inset: 0;
+  background: rgba(7, 21, 39, 0.82);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
-  animation: fadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 1.5rem 1rem;
+  animation: modalFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-content {
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 900px;
+  max-width: 880px;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
-  animation: scaleUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  animation: modalScaleUp 0.28s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeIn {
+@keyframes modalFadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
 }
 
-@keyframes scaleUp {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+@keyframes modalScaleUp {
+  from { transform: scale(0.96) translateY(12px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
 }
 
-/* Glass Card */
-.glass-card {
-  background: var(--bg-glass);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: var(--shadow-md);
-}
-
-/* Form Controls */
+/* ==========================================================================
+   Formulários & Inputs Clean
+   ========================================================================== */
 .input-field {
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1.5px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.925rem;
   color: var(--text-dark);
-  background: #FAFBFD;
+  background: #FFFFFF;
   transition: var(--transition);
 }
 
@@ -262,34 +365,61 @@ input, select, textarea {
   outline: none;
   border-color: var(--primary-blue);
   background: #FFFFFF;
-  box-shadow: 0 0 0 3px rgba(19, 64, 116, 0.12);
-}
-
-/* Responsive Grid for Properties */
-.grid-properties {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  box-shadow: 0 0 0 3px rgba(18, 59, 107, 0.12);
 }
 
 /* ==========================================================================
-   Mobile First Responsive Utilities & Media Queries
+   Grid & Layout
    ========================================================================== */
+.grid-properties {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 2.25rem;
+}
 
-/* Mobile Navigation Menu Drawer */
+/* ==========================================================================
+   Toast Notification Flutuante
+   ========================================================================== */
+.toast-notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 2rem;
+  z-index: 3000;
+  background-color: var(--primary-dark);
+  color: #FFFFFF;
+  padding: 0.95rem 1.5rem;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  border-left: 4px solid var(--accent-red);
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  animation: toastSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes toastSlideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ==========================================================================
+   Mobile First Responsiveness & Drawers
+   ========================================================================== */
 .mobile-nav-drawer {
   position: fixed;
   top: 0;
   right: -100%;
-  width: 280px;
+  width: 300px;
   height: 100vh;
-  background-color: var(--bg-card);
+  background-color: #FFFFFF;
   box-shadow: var(--shadow-lg);
-  z-index: 1001;
+  z-index: 2500;
   display: flex;
   flex-direction: column;
   padding: 2rem 1.5rem;
-  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: right 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .mobile-nav-drawer.open {
@@ -298,13 +428,10 @@ input, select, textarea {
 
 .mobile-nav-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(7, 23, 44, 0.6);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+  inset: 0;
+  background: rgba(7, 21, 39, 0.65);
+  backdrop-filter: blur(6px);
+  z-index: 2400;
   opacity: 0;
   visibility: hidden;
   transition: var(--transition);
@@ -337,33 +464,16 @@ input, select, textarea {
   html {
     font-size: 15px;
   }
-  
   .container {
-    padding: 0 1rem;
+    padding: 0 1.25rem;
   }
-
   .grid-properties {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
-
-  .modal-content {
-    max-height: 92vh;
-    border-radius: var(--radius-md);
-  }
-
-  .modal-backdrop {
-    padding: 0.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .btn {
-    padding: 0.65rem 1rem;
-    font-size: 0.85rem;
-  }
-
-  .badge {
-    font-size: 0.7rem;
-    padding: 0.25rem 0.6rem;
+  .toast-notification {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1.5rem;
   }
 }

@@ -1,0 +1,17 @@
+{
+  "name": "Anderson Kunicki - Corretor Imobiliário",
+  "short_name": "Anderson Imóveis",
+  "description": "Assessoria imobiliária em Itaiópolis e região - CRECI-SC 60173 F",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07172C",
+  "theme_color": "#07172C",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
