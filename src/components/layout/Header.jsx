@@ -9,14 +9,14 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
   const waUrl = getWhatsAppUrl("Olá Anderson! Gostaria de informações sobre os imóveis disponíveis.");
 
   // For ordinary public visitors, only show public sections.
-  // Show Admin link only if admin is logged in or already viewing the #admin route.
+  // Show Admin link only if admin is logged in or already viewing the /admin route.
   const baseNavItems = [
-    { id: 'home', label: 'Imóveis', hash: '#home' },
-    { id: 'about', label: 'Sobre & Contato', hash: '#sobre' }
+    { id: 'home', label: 'Imóveis', path: '/' },
+    { id: 'about', label: 'Sobre & Contato', path: '/sobre' }
   ];
 
   const navItems = (currentTab === 'admin' || currentUser)
-    ? [...baseNavItems, { id: 'admin', label: currentUser ? `Painel Admin` : 'Painel Admin', hash: '#admin', isSpecial: true }]
+    ? [...baseNavItems, { id: 'admin', label: currentUser ? `Painel Admin` : 'Painel Admin', path: '/admin', isSpecial: true }]
     : baseNavItems;
 
   return (
@@ -61,7 +61,7 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
         {/* Main navigation bar */}
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.5rem' }}>
           {/* Logo & Brand */}
-          <a href="#home" onClick={() => setCurrentTab('home')} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', textDecoration: 'none' }}>
+          <a href="/" onClick={(e) => { e.preventDefault(); setCurrentTab('home'); }} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', textDecoration: 'none' }}>
             <img 
               src="/banner.jpg" 
               alt="Anderson Kunicki Corretor Imobiliário" 
@@ -86,8 +86,11 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
                 return (
                   <li key={item.id} style={{ margin: 0, padding: 0 }}>
                     <a 
-                      href={item.hash}
-                      onClick={() => setCurrentTab(item.id)}
+                      href={item.path}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentTab(item.id);
+                      }}
                       style={{ 
                         fontWeight: item.isSpecial ? 700 : (isActive ? 700 : 500), 
                         color: isActive 
@@ -179,8 +182,9 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
             return (
               <a 
                 key={item.id}
-                href={item.hash}
-                onClick={() => {
+                href={item.path}
+                onClick={(e) => {
+                  e.preventDefault();
                   setCurrentTab(item.id);
                   setMobileOpen(false);
                 }}

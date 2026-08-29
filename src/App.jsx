@@ -24,16 +24,21 @@ import { Building, PlusCircle } from 'lucide-react';
 import WhatsAppIcon from './components/common/WhatsAppIcon';
 import { getWhatsAppUrl } from './config';
 
-function getTabFromHash(hash) {
-  const cleanHash = hash.replace('#', '').toLowerCase();
-  if (cleanHash === 'admin') return 'admin';
-  if (cleanHash === 'sobre' || cleanHash === 'contato') return 'about';
-  if (cleanHash === 'privacidade' || cleanHash === 'lgpd' || cleanHash === 'termos') return 'privacy';
+function getTabFromLocation() {
+  const path = window.location.pathname.toLowerCase().replace(/^\/+|\/+$/g, '');
+  const hash = window.location.hash.replace('#', '').toLowerCase();
+
+  // Check pathname first, then fallback to hash for backward compatibility
+  const route = path || hash;
+
+  if (route === 'admin') return 'admin';
+  if (route === 'sobre' || route === 'contato') return 'about';
+  if (route === 'privacidade' || route === 'lgpd' || route === 'termos') return 'privacy';
   return 'home';
 }
 
 export default function App() {
-  const [currentTab, setCurrentTabState] = useState(() => getTabFromHash(window.location.hash));
+  const [currentTab, setCurrentTabState] = useState(() => getTabFromLocation());
   const [selectedPropertyModal, setSelectedPropertyModal] = useState(null);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingProperty, setEditingProperty] = useState(null);
@@ -59,28 +64,41 @@ export default function App() {
     importBackupJSON
   } = useProperties(showToast);
 
-  // Sync tab with URL Hash & Scroll to Top
-  const setCurrentTab = (tabName) => {
+  // Sync tab with Clean Path (HTML5 History API) & Scroll to Top
+  const setCurrentTab = (tabName, replace = false) => {
     setCurrentTabState(tabName);
-    const hashMap = {
-      home: 'home',
-      about: 'sobre',
-      privacy: 'privacidade',
-      admin: 'admin'
+    const pathMap = {
+      home: '/',
+      about: '/sobre',
+      privacy: '/privacidade',
+      admin: '/admin'
     };
-    window.location.hash = hashMap[tabName] || 'home';
+    const targetPath = pathMap[tabName] || '/';
+
+    if (window.location.pathname !== targetPath) {
+      if (replace) {
+        window.history.replaceState({ tab: tabName }, '', targetPath);
+      } else {
+        window.history.pushState({ tab: tabName }, '', targetPath);
+      }
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   useEffect(() => {
-    const handleHashChange = () => {
-      const tab = getTabFromHash(window.location.hash);
+    const handleNavigation = () => {
+      const tab = getTabFromLocation();
       setCurrentTabState(tab);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleNavigation);
+    window.addEventListener('hashchange', handleNavigation);
+
+    return () => {
+      window.removeEventListener('popstate', handleNavigation);
+      window.removeEventListener('hashchange', handleNavigation);
+    };
   }, []);
 
   const handleSavePropertyForm = (formData, editId) => {
