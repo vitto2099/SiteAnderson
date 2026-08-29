@@ -38,11 +38,6 @@ export default function Footer({ setCurrentTab }) {
                 </button>
               </li>
               <li>
-                <button onClick={() => setCurrentTab('financing')} style={{ color: '#CBD5E1', fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
-                  Simulador de Financiamento
-                </button>
-              </li>
-              <li>
                 <button onClick={() => setCurrentTab('about')} style={{ color: '#CBD5E1', fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
                   Sobre & Contato
                 </button>

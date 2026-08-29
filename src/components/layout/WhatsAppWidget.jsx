@@ -25,8 +25,8 @@ export default function WhatsAppWidget() {
 
   const quickQuestions = [
     "Gostaria de agendar uma visita a um imóvel",
-    "Quero avaliar meu imóvel para venda",
-    "Dúvidas sobre simulação de financiamento"
+    "Quero avaliar meu imóvel para venda ou locação",
+    "Gostaria de ver opções de casas ou terrenos disponíveis"
   ];
 
   return (

@@ -27,13 +27,7 @@ O design do projeto utiliza um estilo corporativo, clean e refinado:
    - Dados detalhados de área construída, terreno, suítes, IPTU e condomínio.
    - Botão direto para o WhatsApp preenchendo o imóvel e referência exata de interesse.
 
-3. **Simulador de Financiamento Imobiliário**:
-   - Estimativa de parcelas mensais pelo Sistema PRICE.
-   - Sliders interativos de entrada, taxa de juros e prazo em anos.
-   - Barra de composição visual da compra (Entrada vs Financiamento).
-   - Botão de envio da simulação personalizada direto para o WhatsApp do corretor.
-
-4. **Painel de Gestão de Anúncios (Admin)**:
+3. **Painel de Gestão de Anúncios (Admin)**:
    - Autenticação com **Firebase Auth** ou criptografia **SHA-256**, rate-limiting e auto-logout por inatividade (30 min).
    - **Módulo de Troca de Senha** integrado diretamente no painel.
    - Métricas de carteira em tempo real (Total de Imóveis, Em Destaque, Venda/Aluguel, VGV Total).
@@ -41,17 +35,17 @@ O design do projeto utiliza um estilo corporativo, clean e refinado:
    - **Gerenciamento dinâmico de tags e comodidades**.
    - Ações em lote, duplicação rápida e exportação/importação de backups em formato JSON.
 
-5. **Persistência em Nuvem (Firebase Firestore)**:
+4. **Persistência em Nuvem (Firebase Firestore)**:
    - Sincronização em tempo real entre todos os dispositivos (celular, tablet, computador do escritório).
    - Modo de contingência e cache local resiliente a falhas de conexão.
 
-6. **Widget Flutuante do WhatsApp**:
+5. **Widget Flutuante do WhatsApp**:
    - Popover interativo no canto inferior direito para contato direto e captação de leads com mensagens pré-configuradas.
 
-7. **Conformidade com a LGPD**:
+6. **Conformidade com a LGPD**:
    - Página dedicada de Política de Privacidade e Proteção de Dados com canais de encarregado.
 
-8. **Seção Institucional e Redes Sociais**:
+7. **Seção Institucional e Redes Sociais**:
    - Informações institucionais do corretor Anderson Kunicki (CRECI-SC 60173 F).
    - Links oficiais para WhatsApp, Instagram (`@kunickianderson`) e Facebook.
    - Google Maps interativo da sede na **Rua Francisco Mielzkovski, 173 - Itaiópolis - SC**.
@@ -77,7 +71,8 @@ andersonkunicki/
 │   │   │   ├── ChangePasswordModal.jsx # Modal de alteração de senha
 │   │   │   └── PropertyFormModal.jsx # Formulário de cadastro/edição
 │   │   ├── common/                   # Componentes Compartilhados
-│   │   │   └── Toast.jsx             # Notificações flutuantes animadas
+│   │   │   ├── Toast.jsx             # Notificações flutuantes animadas
+│   │   │   └── WhatsAppIcon.jsx      # Ícone oficial vetorial do WhatsApp
 │   │   ├── layout/                   # Estrutura e Navegação
 │   │   │   ├── Header.jsx            # Cabeçalho com redes e menu responsivo
 │   │   │   ├── Footer.jsx            # Rodapé institucional
@@ -88,7 +83,6 @@ andersonkunicki/
 │   │   │   └── PropertyModal.jsx     # Modal de detalhes, galeria e vídeo
 │   │   └── sections/                 # Seções de Conteúdo
 │   │       ├── AboutContact.jsx      # Sobre, contato e mapa
-│   │       ├── FinancingCalculator.jsx # Calculadora PRICE
 │   │       ├── Hero.jsx              # Banner de busca rápida
 │   │       └── PrivacyPage.jsx       # Política de Privacidade (LGPD)
 │   ├── config/

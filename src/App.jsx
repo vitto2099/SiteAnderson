@@ -5,7 +5,6 @@ import WhatsAppWidget from './components/layout/WhatsAppWidget';
 import Toast from './components/common/Toast';
 
 import Hero from './components/sections/Hero';
-import FinancingCalculator from './components/sections/FinancingCalculator';
 import AboutContact from './components/sections/AboutContact';
 import PrivacyPage from './components/sections/PrivacyPage';
 
@@ -27,7 +26,6 @@ import { getWhatsAppUrl } from './config';
 
 function getTabFromHash(hash) {
   const cleanHash = hash.replace('#', '').toLowerCase();
-  if (cleanHash === 'simulador' || cleanHash === 'financiamento') return 'financing';
   if (cleanHash === 'sobre' || cleanHash === 'contato') return 'about';
   if (cleanHash === 'privacidade' || cleanHash === 'lgpd' || cleanHash === 'termos') return 'privacy';
   if (cleanHash === 'admin') return 'admin';
@@ -66,7 +64,6 @@ export default function App() {
     setCurrentTabState(tabName);
     const hashMap = {
       catalog: 'imoveis',
-      financing: 'simulador',
       about: 'sobre',
       privacy: 'privacidade',
       admin: 'admin'
@@ -216,13 +213,7 @@ export default function App() {
           </>
         )}
 
-        {currentTab === 'financing' && (
-          <section style={{ padding: '4.5rem 0 5.5rem', backgroundColor: 'var(--bg-main)' }}>
-            <div className="container" style={{ maxWidth: '900px' }}>
-              <FinancingCalculator />
-            </div>
-          </section>
-        )}
+
 
         {currentTab === 'about' && (
           <AboutContact />

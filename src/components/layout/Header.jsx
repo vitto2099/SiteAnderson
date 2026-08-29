@@ -10,7 +10,6 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
 
   const navItems = [
     { id: 'catalog', label: 'Imóveis', hash: '#imoveis' },
-    { id: 'financing', label: 'Simulador', hash: '#simulador' },
     { id: 'about', label: 'Sobre & Contato', hash: '#sobre' },
     { id: 'admin', label: 'Painel Admin', hash: '#admin', isSpecial: true }
   ];
