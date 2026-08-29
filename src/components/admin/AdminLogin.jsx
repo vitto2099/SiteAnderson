@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Lock, User, KeyRound, ShieldAlert, Eye, EyeOff, LogIn, Clock, ShieldCheck } from 'lucide-react';
 
 export default function AdminLogin({ onLogin }) {
-  const [username, setUsername] = useState('andersonkunicki');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -178,11 +178,12 @@ export default function AdminLogin({ onLogin }) {
               <input
                 type="text"
                 className="input-field"
-                placeholder="Informe seu usuário"
+                placeholder="Informe seu usuário de acesso"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
                 disabled={lockoutTime > 0}
+                autoFocus
                 style={{
                   paddingLeft: '2.75rem',
                   backgroundColor: 'var(--bg-subtle)'
@@ -222,7 +223,6 @@ export default function AdminLogin({ onLogin }) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 disabled={lockoutTime > 0}
-                autoFocus
                 style={{
                   paddingLeft: '2.75rem',
                   paddingRight: '2.75rem',
