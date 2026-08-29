@@ -46,7 +46,7 @@ export default function AboutContact() {
             <img 
               src="/anderson-kunicki.jpg" 
               alt="Anderson Kunicki Corretor Imobiliário CRECI-SC 60173 F" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
               onError={(e) => { e.target.src = '/banner.jpg'; }}
             />
             {/* Verified Floating Badge */}
