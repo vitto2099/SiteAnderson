@@ -26,10 +26,10 @@ import { getWhatsAppUrl } from './config';
 
 function getTabFromHash(hash) {
   const cleanHash = hash.replace('#', '').toLowerCase();
+  if (cleanHash === 'admin') return 'admin';
   if (cleanHash === 'sobre' || cleanHash === 'contato') return 'about';
   if (cleanHash === 'privacidade' || cleanHash === 'lgpd' || cleanHash === 'termos') return 'privacy';
-  if (cleanHash === 'admin') return 'admin';
-  return 'catalog';
+  return 'home';
 }
 
 export default function App() {
@@ -63,12 +63,12 @@ export default function App() {
   const setCurrentTab = (tabName) => {
     setCurrentTabState(tabName);
     const hashMap = {
-      catalog: 'imoveis',
+      home: 'home',
       about: 'sobre',
       privacy: 'privacidade',
       admin: 'admin'
     };
-    window.location.hash = hashMap[tabName] || 'imoveis';
+    window.location.hash = hashMap[tabName] || 'home';
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -90,12 +90,12 @@ export default function App() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', backgroundColor: 'var(--bg-main)' }}>
       
-      {/* Toast Notification */}
+      {/* Dynamic Floating Toast Alerts */}
       <Toast message={toastMessage} />
 
-      {/* Main Header */}
+      {/* Main Header & Navigation */}
       <Header 
         currentTab={currentTab} 
         setCurrentTab={setCurrentTab} 
@@ -105,8 +105,9 @@ export default function App() {
 
       {/* Dynamic Views */}
       <main style={{ flex: 1 }}>
-        {currentTab === 'catalog' && (
+        {currentTab === 'home' && (
           <>
+            {/* Hero Section */}
             <Hero 
               filters={filters} 
               setFilters={setFilters} 
@@ -142,19 +143,21 @@ export default function App() {
               </section>
             )}
 
-            {/* Catalog Section */}
-            <section id="catalog-section" style={{ padding: '4.5rem 0 5.5rem' }}>
+            {/* Full Property Catalog Section */}
+            <section id="catalog-section" style={{ padding: '3.5rem 0 5rem' }}>
               <div className="container">
-                <div style={{ textAlign: 'center', maxWidth: '680px', margin: '0 auto 2.5rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Oportunidades em Itaiópolis - SC
-                  </span>
-                  <h2 style={{ fontSize: '2.25rem', margin: '0.4rem 0', fontWeight: 800 }}>Catálogo de Imóveis</h2>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '1rem' }}>
-                    Casas, terrenos, sítios e apartamentos com atendimento personalizado e segurança jurídica.
-                  </p>
+                <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                      Vitrine de Imóveis
+                    </span>
+                    <h2 style={{ fontSize: '2rem', margin: '0.2rem 0 0', color: 'var(--primary-dark)', fontWeight: 900 }}>
+                      Catálogo Completo
+                    </h2>
+                  </div>
                 </div>
 
+                {/* Filter Controls */}
                 <PropertyFilters 
                   filters={filters} 
                   setFilters={setFilters} 
@@ -162,36 +165,31 @@ export default function App() {
                   onReset={resetFilters}
                 />
 
+                {/* Properties Grid or Clean Empty State */}
                 {filteredProperties.length === 0 ? (
                   <div style={{
-                    textAlign: 'center',
-                    padding: '4.5rem 2rem',
                     backgroundColor: '#FFFFFF',
-                    borderRadius: 'var(--radius-lg)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: '4rem 2rem',
+                    textAlign: 'center',
                     border: '1px dashed var(--border-subtle)',
-                    boxShadow: 'var(--shadow-xs)',
-                    maxWidth: '700px',
-                    margin: '0 auto'
+                    boxShadow: 'var(--shadow-sm)',
+                    maxWidth: '650px',
+                    margin: '2rem auto'
                   }}>
                     <Building size={56} style={{ color: '#CBD5E1', marginBottom: '1.25rem' }} />
                     <h3 style={{ fontSize: '1.35rem', color: 'var(--primary-dark)', fontWeight: 800, marginBottom: '0.4rem' }}>
-                      {properties.length === 0 ? 'Nenhum imóvel cadastrado no momento' : 'Nenhum imóvel encontrado para os filtros selecionados'}
+                      {properties.length === 0 ? 'Nenhum imóvel disponível no momento' : 'Nenhum imóvel encontrado para estes filtros'}
                     </h3>
                     <p style={{ color: 'var(--text-muted)', marginBottom: '1.75rem', fontSize: '0.95rem' }}>
                       {properties.length === 0 
-                        ? 'Acesse o Painel Admin para cadastrar os anúncios imobiliários com fotos e especificações.' 
+                        ? 'Entre em contato diretamente pelo WhatsApp para consultar novidades e captações exclusivas.' 
                         : 'Tente limpar ou ajustar os filtros de busca para encontrar outras oportunidades.'}
                     </p>
                     <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                      {properties.length === 0 ? (
-                        <button className="btn btn-red" onClick={() => setCurrentTab('admin')}>
-                          <PlusCircle size={17} /> Acessar Painel Admin
-                        </button>
-                      ) : (
-                        <button className="btn btn-outline" onClick={resetFilters}>
-                          Limpar Filtros de Busca
-                        </button>
-                      )}
+                      <button className="btn btn-outline" onClick={resetFilters}>
+                        Limpar Filtros de Busca
+                      </button>
                       <a href={getWhatsAppUrl("Olá Anderson! Gostaria de consultar opções de imóveis disponíveis em Itaiópolis.")} target="_blank" rel="noopener noreferrer" className="btn btn-whatsapp">
                         <WhatsAppIcon size={18} color="#FFFFFF" /> Consultar Corretor no WhatsApp
                       </a>
@@ -213,14 +211,12 @@ export default function App() {
           </>
         )}
 
-
-
         {currentTab === 'about' && (
           <AboutContact />
         )}
 
         {currentTab === 'privacy' && (
-          <PrivacyPage onBackToCatalog={() => setCurrentTab('catalog')} />
+          <PrivacyPage onBackToCatalog={() => setCurrentTab('home')} />
         )}
 
         {currentTab === 'admin' && (

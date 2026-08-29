@@ -8,11 +8,16 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
 
   const waUrl = getWhatsAppUrl("Olá Anderson! Gostaria de informações sobre os imóveis disponíveis.");
 
-  const navItems = [
-    { id: 'catalog', label: 'Imóveis', hash: '#imoveis' },
-    { id: 'about', label: 'Sobre & Contato', hash: '#sobre' },
-    { id: 'admin', label: 'Painel Admin', hash: '#admin', isSpecial: true }
+  // For ordinary public visitors, only show public sections.
+  // Show Admin link only if admin is logged in or already viewing the #admin route.
+  const baseNavItems = [
+    { id: 'home', label: 'Imóveis', hash: '#home' },
+    { id: 'about', label: 'Sobre & Contato', hash: '#sobre' }
   ];
+
+  const navItems = (currentTab === 'admin' || currentUser)
+    ? [...baseNavItems, { id: 'admin', label: currentUser ? `Painel Admin` : 'Painel Admin', hash: '#admin', isSpecial: true }]
+    : baseNavItems;
 
   return (
     <>
@@ -56,7 +61,7 @@ export default function Header({ currentTab, setCurrentTab, onOpenAdminModal, cu
         {/* Main navigation bar */}
         <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1.5rem' }}>
           {/* Logo & Brand */}
-          <a href="#imoveis" onClick={() => setCurrentTab('catalog')} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', textDecoration: 'none' }}>
+          <a href="#home" onClick={() => setCurrentTab('home')} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', textDecoration: 'none' }}>
             <img 
               src="/banner.jpg" 
               alt="Anderson Kunicki Corretor Imobiliário" 

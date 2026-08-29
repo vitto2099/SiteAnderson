@@ -33,7 +33,7 @@ export default function Footer({ setCurrentTab }) {
             </h4>
             <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.65rem', padding: 0 }}>
               <li>
-                <button onClick={() => setCurrentTab('catalog')} style={{ color: '#CBD5E1', fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
+                <button onClick={() => setCurrentTab('home')} style={{ color: '#CBD5E1', fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
                   Imóveis Disponíveis
                 </button>
               </li>
@@ -45,11 +45,6 @@ export default function Footer({ setCurrentTab }) {
               <li>
                 <button onClick={() => setCurrentTab('privacy')} style={{ color: '#CBD5E1', fontSize: '0.9rem', cursor: 'pointer', textAlign: 'left', background: 'none', border: 'none', padding: 0, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
                   <ShieldCheck size={14} style={{ color: 'var(--gold-primary)' }} /> Política de Privacidade
-                </button>
-              </li>
-              <li>
-                <button onClick={() => setCurrentTab('admin')} style={{ color: 'var(--accent-red)', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', textAlign: 'left', background: 'none', border: 'none', padding: 0 }}>
-                  Painel de Gestão (Admin)
                 </button>
               </li>
             </ul>
